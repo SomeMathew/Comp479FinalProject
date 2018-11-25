@@ -9,23 +9,14 @@ import java.util.List;
 
 import com.esotericsoftware.kryo.io.Output;
 
-import edu.comp479.search.index.DictionaryEntry;
-import edu.comp479.search.index.Posting;
+import edu.comp479.search.index.structure.DictionaryEntry;
+import edu.comp479.search.index.structure.Posting;
 
 import static com.google.common.base.Preconditions.*;
 
 public class IndexWriter implements Closeable {
-    public static final String DICTIONARY_EXTENSION = ".dic";
-    public static final String POSTINGS_EXTENSION = ".pst";
-    public static final String DESCRIPTOR_EXTENSION = ".desc";
-
-    private static final int FILE_VERSION = 0xAB01;
-
-    private static final float TFIDF_VAR_FLOAT_PRECISION = 1000.0f;
-
     private String indexName;
     private Path directory;
-    private WriterMode mode;
 
     private Output dictionaryOutput;
     private Output postingsOutput;
@@ -37,10 +28,6 @@ public class IndexWriter implements Closeable {
 
     private long lastPostingListOffset = 0;
     private long termCount = 0;
-
-    public static enum WriterMode {
-        STREAM, DUMP;
-    }
 
     /**
      * Creates a new IndexWriter.
@@ -61,32 +48,24 @@ public class IndexWriter implements Closeable {
      * 
      * <p>
      * The following files will be created by this index:<br>
-     * {@value #DICTIONARY_EXTENSION} - Dictionary of terms<br>
-     * {@value #POSTINGS_EXTENSION} - The Postings for each dictionary term<br>
-     * {@value #DESCRIPTOR_EXTENSION} - The descriptor for the index
+     * {@value IndexFileUtility#DICTIONARY_EXTENSION} - Dictionary of terms<br>
+     * {@value IndexFileUtility#POSTINGS_EXTENSION} - The Postings for each dictionary term<br>
+     * {@value IndexFileUtility#DESCRIPTOR_EXTENSION} - The descriptor for the index
      * 
      * 
      * @param indexName The name for this index, used for the files name.
      * @param dir       Directory to create the index in.
-     * @param mode      Mode of operation, currently only supports Stream.
      * @throws IOException
      */
-    public IndexWriter(String indexName, Path dir, WriterMode mode) throws IOException {
+    public IndexWriter(String indexName, Path dir) throws IOException {
         this.indexName = checkNotNull(indexName);
         this.directory = checkNotNull(dir);
-        this.mode = checkNotNull(mode);
-
-        if (mode == WriterMode.STREAM) {
-
-        } else {
-            throw new UnsupportedOperationException("Mode Not Implemented yet");
-        }
 
         Files.createDirectories(dir);
 
-        this.dictionaryPath = dir.resolve(indexName + DICTIONARY_EXTENSION);
-        this.postingsPath = dir.resolve(indexName + POSTINGS_EXTENSION);
-        this.descriptorPath = dir.resolve(indexName + DESCRIPTOR_EXTENSION);
+        this.dictionaryPath = dir.resolve(indexName + IndexFileUtility.DICTIONARY_EXTENSION);
+        this.postingsPath = dir.resolve(indexName + IndexFileUtility.POSTINGS_EXTENSION);
+        this.descriptorPath = dir.resolve(indexName + IndexFileUtility.DESCRIPTOR_EXTENSION);
 
         this.dictionaryOutput = new Output(Files.newOutputStream(dictionaryPath));
         this.postingsOutput = new Output(Files.newOutputStream(postingsPath));
@@ -94,10 +73,10 @@ public class IndexWriter implements Closeable {
     }
 
     /**
-     * @see IndexWriter#IndexWriter(String, Path, WriterMode)
+     * @see IndexWriter#IndexWriter(String, Path)
      */
-    public IndexWriter(String indexName, String directory, WriterMode mode) throws IOException {
-        this(indexName, Paths.get(directory), mode);
+    public IndexWriter(String indexName, String directory) throws IOException {
+        this(indexName, Paths.get(directory));
     }
 
     public Path getDictionaryPath() {
@@ -119,7 +98,6 @@ public class IndexWriter implements Closeable {
      * @param postingsList
      */
     public void write(DictionaryEntry dictEntry, List<Posting> postingsList) {
-        checkState(mode == WriterMode.STREAM, "This method is reserved for the Stream Mode. Current: %s", mode);
         checkNotNull(dictEntry);
         checkNotNull(postingsList);
         checkArgument(!postingsList.isEmpty(), "The postings list cannot be empty.");
@@ -144,7 +122,7 @@ public class IndexWriter implements Closeable {
      * 
      */
     public void writeDescriptor() {
-        descriptorOutput.writeInt(FILE_VERSION);
+        descriptorOutput.writeInt(IndexFileUtility.FILE_VERSION);
         descriptorOutput.writeLong(termCount);
     }
 
@@ -167,11 +145,16 @@ public class IndexWriter implements Closeable {
 
         long lastDocId = -1;
         for (Posting posting : postingsList) {
-            lastDocId = writeDeltaVarLong(postingsOutput, lastDocId, posting.getDocId(), lastDocId == -1, true);
-            postingsOutput.writeVarInt(posting.getTermFreq(), true);
-            postingsOutput.writeVarFloat(posting.getTfIdf(), TFIDF_VAR_FLOAT_PRECISION, true);
+            lastDocId = writePosting(lastDocId, posting);
         }
         return startPosition;
+    }
+
+    private long writePosting(long lastDocId, Posting posting) {
+        lastDocId = writeDeltaVarLong(postingsOutput, lastDocId, posting.getDocId(), lastDocId == -1, true);
+        postingsOutput.writeVarInt(posting.getTermFreq(), true);
+        postingsOutput.writeVarFloat(posting.getTfIdf(), IndexFileUtility.TFIDF_VAR_FLOAT_PRECISION, true);
+        return lastDocId;
     }
 
     /**
@@ -182,7 +165,7 @@ public class IndexWriter implements Closeable {
      * DictionaryFile → (TermInfo)<sup>TermCount</sup> <br>
      * TermInfo → (Term, DocFreq, FreqDelta, Sentiment) <br>
      * Term → String <br>
-     * DocFreq → VarInt <br>
+     * DocFreq → VarLong <br>
      * FreqDelta → VarLong <br>
      * Sentiment → VarInt (signed)
      * 
@@ -191,7 +174,7 @@ public class IndexWriter implements Closeable {
      */
     private void writeDictionary(DictionaryEntry dictEntry, long postingListOffset) {
         dictionaryOutput.writeString(dictEntry.getTerm());
-        dictionaryOutput.writeVarInt(dictEntry.getDocFreq(), true);
+        dictionaryOutput.writeVarLong(dictEntry.getDocFreq(), true);
         // No use for isFirst since the first will always initialize at 0
         writeDeltaVarLong(dictionaryOutput, lastPostingListOffset, postingListOffset, false, true);
         dictionaryOutput.writeVarInt(dictEntry.getSentiment(), false);

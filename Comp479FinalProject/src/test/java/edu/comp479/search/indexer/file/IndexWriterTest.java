@@ -16,12 +16,8 @@ import org.junit.jupiter.api.Test;
 
 import com.esotericsoftware.kryo.io.Input;
 
-import edu.comp479.search.index.DictionaryEntry;
-import edu.comp479.search.index.Posting;
-import edu.comp479.search.indexer.file.IndexWriter.WriterMode;
-
-//import static org.hamcrest.MatcherAssert.assertThat;
-//import static org.hamcrest.Matchers.*;
+import edu.comp479.search.index.structure.DictionaryEntry;
+import edu.comp479.search.index.structure.Posting;
 
 class IndexWriterTest {
     private IndexWriter writer;
@@ -39,7 +35,7 @@ class IndexWriterTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        writer = new IndexWriter("testIndex", "./testIndex/", WriterMode.STREAM);
+        writer = new IndexWriter("testIndex", "./testIndex/");
         descriptorPath = writer.getDescriptorPath();
         dictionaryPath = writer.getDictionaryPath();
         postingsPath = writer.getPostingsPath();
@@ -75,22 +71,22 @@ class IndexWriterTest {
         writer.writeDescriptor();
         writer.close();
 
-        Input input = new Input(Files.newInputStream(postingsPath));
+        Input postingsInput = new Input(Files.newInputStream(postingsPath));
 
         List<Object> actual = new ArrayList<>();
 
-        actual.add(input.readVarLong(true));
-        actual.add(input.readVarInt(true));
-        actual.add(input.readVarFloat(1000.0f, true));
+        actual.add(postingsInput.readVarLong(true));
+        actual.add(postingsInput.readVarInt(true));
+        actual.add(postingsInput.readVarFloat(1000.0f, true));
 
-        actual.add(input.readVarLong(true));
-        actual.add(input.readVarInt(true));
-        actual.add(input.readVarFloat(1000.0f, true));
+        actual.add(postingsInput.readVarLong(true));
+        actual.add(postingsInput.readVarInt(true));
+        actual.add(postingsInput.readVarFloat(1000.0f, true));
 
-        actual.add(input.readVarLong(true));
-        actual.add(input.readVarInt(true));
-        actual.add(input.readVarFloat(1000.0f, true));
-        input.close();
+        actual.add(postingsInput.readVarLong(true));
+        actual.add(postingsInput.readVarInt(true));
+        actual.add(postingsInput.readVarFloat(1000.0f, true));
+        postingsInput.close();
 
         assertIterableEquals(expected, actual);
     }
@@ -106,21 +102,21 @@ class IndexWriterTest {
         writer.writeDescriptor();
         writer.close();
 
-        Input input = new Input(Files.newInputStream(postingsPath));
+        Input postingsInput = new Input(Files.newInputStream(postingsPath));
 
-        long docDelta1 = input.readVarLong(true);
-        input.readVarInt(true);
-        input.readVarFloat(1000.0f, true);
+        long docDelta1 = postingsInput.readVarLong(true);
+        postingsInput.readVarInt(true);
+        postingsInput.readVarFloat(1000.0f, true);
 
-        long docDelta2 = input.readVarLong(true);
-        input.readVarInt(true);
-        input.readVarFloat(1000.0f, true);
+        long docDelta2 = postingsInput.readVarLong(true);
+        postingsInput.readVarInt(true);
+        postingsInput.readVarFloat(1000.0f, true);
 
-        long docDelta3 = input.readVarLong(true);
-        input.readVarInt(true);
-        input.readVarFloat(1000.0f, true);
+        long docDelta3 = postingsInput.readVarLong(true);
+        postingsInput.readVarInt(true);
+        postingsInput.readVarFloat(1000.0f, true);
 
-        input.close();
+        postingsInput.close();
 
         assertAll(() -> assertEquals(4, docDelta1), () -> assertEquals(1, docDelta2),
                 () -> assertEquals(37, docDelta3));
@@ -143,19 +139,19 @@ class IndexWriterTest {
         writer.writeDescriptor();
         writer.close();
 
-        Input input = new Input(Files.newInputStream(dictionaryPath));
+        Input dictInput = new Input(Files.newInputStream(dictionaryPath));
 
-        String term1 = input.readString();
-        int docFreq1 = input.readVarInt(true);
-        long freqDelta1 = input.readVarLong(true);
-        int sentiment1 = input.readVarInt(false);
+        String term1 = dictInput.readString();
+        long docFreq1 = dictInput.readVarLong(true);
+        long freqDelta1 = dictInput.readVarLong(true);
+        int sentiment1 = dictInput.readVarInt(false);
 
-        String term2 = input.readString();
-        int docFreq2 = input.readVarInt(true);
-        long freqDelta2 = input.readVarLong(true);
-        int sentiment2 = input.readVarInt(false);
+        String term2 = dictInput.readString();
+        long docFreq2 = dictInput.readVarLong(true);
+        long freqDelta2 = dictInput.readVarLong(true);
+        int sentiment2 = dictInput.readVarInt(false);
 
-        input.close();
+        dictInput.close();
 
         assertAll(() -> assertEquals("test1", term1), () -> assertEquals(3, docFreq1),
                 () -> assertEquals(0, sentiment1), () -> assertEquals("test2", term2), () -> assertEquals(2, docFreq2),
@@ -198,17 +194,17 @@ class IndexWriterTest {
         Input inputDict = new Input(Files.newInputStream(dictionaryPath));
 
         String term1 = inputDict.readString();
-        int docFreq1 = inputDict.readVarInt(true);
+        long docFreq1 = inputDict.readVarLong(true);
         long freqDelta1 = inputDict.readVarLong(true);
         int sentiment1 = inputDict.readVarInt(false);
 
         String term2 = inputDict.readString();
-        int docFreq2 = inputDict.readVarInt(true);
+        long docFreq2 = inputDict.readVarLong(true);
         long freqDelta2 = inputDict.readVarLong(true);
         int sentiment2 = inputDict.readVarInt(false);
 
         String term3 = inputDict.readString();
-        int docFreq3 = inputDict.readVarInt(true);
+        long docFreq3 = inputDict.readVarLong(true);
         long freqDelta3 = inputDict.readVarLong(true);
         int sentiment3 = inputDict.readVarInt(false);
 
