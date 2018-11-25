@@ -1,4 +1,4 @@
-package edu.comp479.search.index;
+package edu.comp479.search.index.structure;
 
 public class Posting {
     private final long docId;

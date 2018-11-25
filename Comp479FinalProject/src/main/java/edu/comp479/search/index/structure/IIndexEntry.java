@@ -1,11 +1,11 @@
-package edu.comp479.search.index;
+package edu.comp479.search.index.structure;
 
 import java.util.List;
 
 public interface IIndexEntry {
     public String getTerm();
     
-    public int getDocumentFrequency();
+    public long getDocumentFrequency();
 
     public int getSentimentValue();
 

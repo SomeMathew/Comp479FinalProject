@@ -1,11 +1,11 @@
-package edu.comp479.search.index;
+package edu.comp479.search.index.structure;
 
 public class DictionaryEntry implements Comparable<DictionaryEntry> {
     private final String term;
-    private final int docFreq;
+    private final long docFreq;
     private final int sentiment;
 
-    public DictionaryEntry(String term, int docFreq, int sentiment) {
+    public DictionaryEntry(String term, long docFreq, int sentiment) {
         if (term == null || term.isEmpty() || docFreq < 0) {
             throw new IllegalArgumentException();
         }
@@ -18,7 +18,7 @@ public class DictionaryEntry implements Comparable<DictionaryEntry> {
         return term;
     }
 
-    public int getDocFreq() {
+    public long getDocFreq() {
         return docFreq;
     }
 
