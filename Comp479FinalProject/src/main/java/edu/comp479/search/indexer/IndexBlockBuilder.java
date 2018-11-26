@@ -37,9 +37,10 @@ public class IndexBlockBuilder {
      * @return True
      */
     public boolean addPosting(String term, long docId) {
-        if (term == null || term.isEmpty() || docId < 0) {
-            throw new IllegalArgumentException(String.format("Invalid posting: (%s,%d)", term, docId));
-        }
+        checkNotNull(term);
+        checkArgument(!term.isEmpty(), "Term should not be empty.");
+        checkArgument(docId >= 0, "DocId should not be less than 0. Given: %s", docId);
+
         HashMultiset<Long> postings = block.get(term);
         if (postings == null) {
             postings = HashMultiset.create();
