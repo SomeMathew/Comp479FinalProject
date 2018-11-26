@@ -53,9 +53,9 @@ public class IndexBlockBuilder {
     }
 
     /**
-     * Write the block to disk to {@code directory}.
+     * Write the block to disk with the given {@code indexWriter}.
      * 
-     * @param directory Directory to write the block to.
+     * @param indexWriter Writer to use to write to disk.
      * @return The index Name.
      * @throws IOException
      */
