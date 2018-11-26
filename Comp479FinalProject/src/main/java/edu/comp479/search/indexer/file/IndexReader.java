@@ -31,7 +31,7 @@ public abstract class IndexReader implements Closeable {
      * 
      * <p>
      * By default the only file read on construction is the descriptor. Streams are
-     * not opened for reading until they are loaded.
+     * not opened for reading until they are loaded by the implementing class.
      * 
      * <p>
      * The following files will be read for this index:<br>
@@ -119,20 +119,6 @@ public abstract class IndexReader implements Closeable {
 
         return new Posting(lastDocId + docDelta, termFreq, tfIdf);
     }
-
-    /**
-     * Open the directory file descriptor.
-     * 
-     * @return true if successful
-     */
-    public abstract boolean openDictionary() throws IOException;
-
-    /**
-     * Load the postings file descriptor.
-     * 
-     * @return true if successful
-     */
-    public abstract boolean openPostings() throws IOException;
 
     @Override
     public abstract void close() throws IOException;

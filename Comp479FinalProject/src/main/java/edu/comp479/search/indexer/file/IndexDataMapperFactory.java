@@ -12,8 +12,8 @@ public class IndexDataMapperFactory {
         return new IndexWriter(indexName, dir);
     }
 
-    public IndexReaderMemoryMapped createIndexReaderMemoryMapped(String indexName, Path dir) throws IOException {
-        return new IndexReaderMemoryMapped(indexName, dir);
+    public IndexReaderMemoryMappedPostings createIndexReaderMemoryMapped(String indexName, Path dir) throws IOException {
+        return new IndexReaderMemoryMappedPostings(indexName, dir);
     }
 
 //    public IndexReaderStreamed createIndexReaderStreamed(String indexName, Path dir) throws IOException {

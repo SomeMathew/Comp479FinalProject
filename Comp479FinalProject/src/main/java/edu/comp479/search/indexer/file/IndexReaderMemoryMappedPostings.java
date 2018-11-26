@@ -16,11 +16,11 @@ import edu.comp479.search.index.structure.Posting;
 
 import static com.google.common.base.Preconditions.*;
 
-public class IndexReaderMemoryMapped extends IndexReader {
+public class IndexReaderMemoryMappedPostings extends IndexReader {
     private MappedByteBuffer postingsMappedByteBuffer;
     private ByteBufferInput postingsByteBufferInput;
 
-    public IndexReaderMemoryMapped(String indexName, Path dir) throws IOException {
+    public IndexReaderMemoryMappedPostings(String indexName, Path dir) throws IOException {
         super(indexName, dir);
     }
 
@@ -40,13 +40,6 @@ public class IndexReaderMemoryMapped extends IndexReader {
         return readPostings((DictionaryEntryLinked) dictionaryEntry);
     }
 
-    @Override
-    public boolean openDictionary() {
-        // This shouldn't be used in this mode
-        throw new UnsupportedOperationException("Dictionary Shouldn't be read in memory mapped mode.");
-    }
-
-    @Override
     public boolean openPostings() throws IOException {
         try (FileChannel fileChannel = FileChannel.open(postingsPath)) {
             postingsMappedByteBuffer = fileChannel.map(MapMode.READ_ONLY, 0, fileChannel.size());
