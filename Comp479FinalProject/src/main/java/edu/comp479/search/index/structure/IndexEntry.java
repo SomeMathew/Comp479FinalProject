@@ -9,7 +9,7 @@ import static com.google.common.base.Preconditions.*;
 
 public class IndexEntry implements IIndexEntry {
     private final DictionaryEntry dictionaryEntry;
-    private final List<Posting> postings;
+    private final ImmutableList<Posting> postings;
 
     public IndexEntry(DictionaryEntry dictionaryEntry, ImmutableList<Posting> postings) {
         this.dictionaryEntry = checkNotNull(dictionaryEntry);
@@ -38,4 +38,7 @@ public class IndexEntry implements IIndexEntry {
         return postings;
     }
 
+    public DictionaryEntry getDictionaryEntry() {
+        return dictionaryEntry;
+    }
 }
