@@ -55,8 +55,18 @@ public class IndexReaderMemoryMapped extends IndexReader {
         return true;
     }
 
-    public void setPostingsByteBufferInput(ByteBufferInput postingsByteBufferInput) {
-        this.postingsByteBufferInput = postingsByteBufferInput;
+    /**
+     * Override the creation of the ByteBufferInput for postings with a custom
+     * object.
+     * 
+     * This is used mainly for testing the class with a mock.
+     * 
+     * @param postingsByteBufferInput
+     * @return true if successful.
+     */
+    public boolean openPostings(ByteBufferInput postingsByteBufferInput) {
+        this.postingsByteBufferInput = checkNotNull(postingsByteBufferInput);
+        return true;
     }
 
     @Override

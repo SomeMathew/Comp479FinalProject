@@ -38,6 +38,7 @@ class IndexReaderMemoryMappedTest {
 
     @BeforeAll
     static void setUpBeforeClass() throws Exception {
+        Files.createDirectories(Paths.get("./testIndex/"));
         Paths.get("./testIndex/testIndex.desc").toFile().createNewFile();
         Paths.get("./testIndex/testIndex.dic").toFile().createNewFile();
         Paths.get("./testIndex/testIndex.pst").toFile().createNewFile();
@@ -59,7 +60,7 @@ class IndexReaderMemoryMappedTest {
     void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         reader = new IndexReaderMemoryMapped("testIndex", Paths.get("./testIndex/"));
-        reader.setPostingsByteBufferInput(byteBufferInputMock);
+        reader.openPostings(byteBufferInputMock);
     }
 
     @AfterEach
