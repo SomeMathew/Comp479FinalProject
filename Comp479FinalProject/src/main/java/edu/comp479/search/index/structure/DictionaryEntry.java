@@ -1,14 +1,17 @@
 package edu.comp479.search.index.structure;
 
+import static com.google.common.base.Preconditions.*;
+
 public class DictionaryEntry implements Comparable<DictionaryEntry> {
     private final String term;
     private final long docFreq;
     private final int sentiment;
 
     public DictionaryEntry(String term, long docFreq, int sentiment) {
-        if (term == null || term.isEmpty() || docFreq < 0) {
-            throw new IllegalArgumentException();
-        }
+        checkNotNull(term);
+        checkArgument(!term.isEmpty(), "Term cannot be empty.");
+        checkArgument(docFreq >= 0, "The doc frequency must be non-negative. Given: %s", docFreq);
+
         this.term = term;
         this.docFreq = docFreq;
         this.sentiment = sentiment;

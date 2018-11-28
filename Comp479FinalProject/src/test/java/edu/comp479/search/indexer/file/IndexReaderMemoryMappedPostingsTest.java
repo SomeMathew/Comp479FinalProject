@@ -34,7 +34,7 @@ class IndexReaderMemoryMappedPostingsTest {
     @Mock
     ByteBufferInput byteBufferInputMock;
 
-    IndexReaderMemoryMappedPostings reader;
+    IndexReaderMemoryMapped reader;
 
     @BeforeAll
     static void setUpBeforeClass() throws Exception {
@@ -59,8 +59,8 @@ class IndexReaderMemoryMappedPostingsTest {
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        reader = new IndexReaderMemoryMappedPostings("testIndex", Paths.get("./testIndex/"));
-        reader.openPostings(byteBufferInputMock);
+        reader = new IndexReaderMemoryMapped("testIndex", Paths.get("./testIndex/"));
+        reader.open(byteBufferInputMock);
     }
 
     @AfterEach

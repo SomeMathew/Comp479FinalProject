@@ -68,7 +68,7 @@ class IndexWriterTest {
         expected.add(new Float(0));
 
         writer.write(new DictionaryEntry("test", 3, 0), postings);
-        writer.writeDescriptor();
+        writer.writeFinalizeIndex();
         writer.close();
 
         Input postingsInput = new Input(Files.newInputStream(postingsPath));
@@ -99,7 +99,7 @@ class IndexWriterTest {
         postings.add(new Posting(42, 1, 0));
 
         writer.write(new DictionaryEntry("test", 3, 0), postings);
-        writer.writeDescriptor();
+        writer.writeFinalizeIndex();
         writer.close();
 
         Input postingsInput = new Input(Files.newInputStream(postingsPath));
@@ -136,7 +136,7 @@ class IndexWriterTest {
         postings.add(new Posting(5, 1, 0));
 
         writer.write(new DictionaryEntry("test2", 2, -2), postings);
-        writer.writeDescriptor();
+        writer.writeFinalizeIndex();
         writer.close();
 
         Input dictInput = new Input(Files.newInputStream(dictionaryPath));
@@ -188,7 +188,7 @@ class IndexWriterTest {
         expectedPostings.add(new Float(1.1f));
 
         writer.write(new DictionaryEntry("test3", 2, -2), postings);
-        writer.writeDescriptor();
+        writer.writeFinalizeIndex();
         writer.close();
 
         Input inputDict = new Input(Files.newInputStream(dictionaryPath));
@@ -240,7 +240,7 @@ class IndexWriterTest {
 
             writer.write(new DictionaryEntry("test" + i, 3, 0), postings);
         }
-        writer.writeDescriptor();
+        writer.writeFinalizeIndex();
         writer.close();
 
         Input inputDescriptor = new Input(Files.readAllBytes(descriptorPath));

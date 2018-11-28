@@ -8,11 +8,12 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
 
-public class Program {
+public final class Program {
     public static final String PROGRAM_NAME = "EmoSearch";
 
-    public Program() {
-        // TODO Auto-generated constructor stub
+    // Don't instantiate
+    private Program() {
+        throw new UnsupportedOperationException("Static class.");
     }
 
     public static void main(String[] args) {

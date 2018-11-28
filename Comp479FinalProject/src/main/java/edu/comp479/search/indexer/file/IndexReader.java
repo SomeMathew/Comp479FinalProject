@@ -21,10 +21,12 @@ public abstract class IndexReader implements Closeable {
     protected final String indexName;
     protected final Path directory;
     protected final long termCount;
+    protected final long docCount;
 
     protected Path dictionaryPath;
     protected Path postingsPath;
     protected Path descriptorPath;
+    protected Path normsPath;
 
     /**
      * Creates a new IndexReader.
@@ -54,17 +56,31 @@ public abstract class IndexReader implements Closeable {
             this.dictionaryPath = dir.resolve(indexName + IndexFileUtility.DICTIONARY_EXTENSION);
             this.postingsPath = dir.resolve(indexName + IndexFileUtility.POSTINGS_EXTENSION);
             this.descriptorPath = dir.resolve(indexName + IndexFileUtility.DESCRIPTOR_EXTENSION);
+            this.normsPath = dir.resolve(indexName + IndexFileUtility.NORMS_EXTENSION);
         } catch (InvalidPathException e) {
             throw new IllegalArgumentException(
                     "The index files were not found: indexName: " + indexName + ", dir: " + directory, e);
         }
 
-        try (Input inputPosting = new Input(Files.readAllBytes(descriptorPath))) {
-            int fileVersion = inputPosting.readInt();
+        try (Input inputDescriptor = new Input(Files.readAllBytes(descriptorPath))) {
+            int fileVersion = inputDescriptor.readInt();
             verify(fileVersion == IndexFileUtility.FILE_VERSION,
                     "The version of the given index is not supported. Version found is %s.", fileVersion);
-            this.termCount = inputPosting.readLong();
+            this.termCount = inputDescriptor.readLong();
+            this.docCount = inputDescriptor.readLong();
         }
+    }
+
+    public String getIndexName() {
+        return indexName;
+    }
+
+    public long getTermCount() {
+        return termCount;
+    }
+
+    public long getDocCount() {
+        return docCount;
     }
 
     public ImmutableMap<String, DictionaryEntry> readCompleteDictionary() throws IOException {
@@ -151,6 +167,16 @@ public abstract class IndexReader implements Closeable {
         float tfIdf = input.readVarFloat(IndexFileUtility.TFIDF_VAR_FLOAT_PRECISION, true);
 
         return new Posting(lastDocId + docDelta, termFreq, tfIdf);
+    }
+
+    protected NormFileEntry decodeNormEntry(Input input) {
+        checkNotNull(input);
+
+        long docId = input.readLong();
+        float norm = input.readFloat();
+        float emoVal = input.readFloat();
+
+        return new NormFileEntry(docId, norm, emoVal);
     }
 
     @Override

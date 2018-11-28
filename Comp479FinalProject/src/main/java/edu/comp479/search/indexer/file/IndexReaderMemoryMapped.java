@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel.MapMode;
 import java.nio.file.Path;
 
 import com.esotericsoftware.kryo.io.ByteBufferInput;
+import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableList;
 
 import edu.comp479.search.index.structure.DictionaryEntry;
@@ -16,11 +17,14 @@ import edu.comp479.search.index.structure.Posting;
 
 import static com.google.common.base.Preconditions.*;
 
-public class IndexReaderMemoryMappedPostings extends IndexReader {
+public class IndexReaderMemoryMapped extends IndexReader {
     private MappedByteBuffer postingsMappedByteBuffer;
-    private ByteBufferInput postingsByteBufferInput;
+    private MappedByteBuffer normsMappedByteBuffer;
 
-    public IndexReaderMemoryMappedPostings(String indexName, Path dir) throws IOException {
+    private ByteBufferInput postingsByteBufferInput;
+    private ByteBufferInput normsByteBufferInput;
+
+    public IndexReaderMemoryMapped(String indexName, Path dir) throws IOException {
         super(indexName, dir);
     }
 
@@ -40,10 +44,26 @@ public class IndexReaderMemoryMappedPostings extends IndexReader {
         return readPostings((DictionaryEntryLinked) dictionaryEntry);
     }
 
-    public boolean openPostings() throws IOException {
-        try (FileChannel fileChannel = FileChannel.open(postingsPath)) {
-            postingsMappedByteBuffer = fileChannel.map(MapMode.READ_ONLY, 0, fileChannel.size());
+    public NormFileEntry readNormEntry(long docId) {
+        long offset = IndexFileUtility.NORM_HEADER_SIZE + docId * IndexFileUtility.NORM_ENTRY_SIZE;
+
+        normsByteBufferInput.setPosition((int) offset);
+
+        NormFileEntry normEntry = decodeNormEntry(normsByteBufferInput);
+        Verify.verify(normEntry.getDocId() == docId,
+                "Error when reading the norm file, non-matching docId. Wanted: %s, Got: %s", docId,
+                normEntry.getDocId());
+        return normEntry;
+    }
+
+    public boolean open() throws IOException {
+        try (FileChannel postingsChannel = FileChannel.open(postingsPath);
+                FileChannel normsChannel = FileChannel.open(normsPath)) {
+            postingsMappedByteBuffer = postingsChannel.map(MapMode.READ_ONLY, 0, postingsChannel.size());
             postingsByteBufferInput = new ByteBufferInput(postingsMappedByteBuffer);
+
+            normsMappedByteBuffer = normsChannel.map(MapMode.READ_ONLY, 0, normsChannel.size());
+            normsByteBufferInput = new ByteBufferInput(normsMappedByteBuffer);
         }
         return true;
     }
@@ -62,14 +82,34 @@ public class IndexReaderMemoryMappedPostings extends IndexReader {
         return true;
     }
 
+    /**
+     * Override the creation of the ByteBufferInput for norms with a custom object.
+     * 
+     * This is used mainly for testing the class with a mock.
+     * 
+     * @param normsByteBufferInput
+     * @return true if successful.
+     */
+    public boolean openNorms(ByteBufferInput normsByteBufferInput) {
+        this.normsByteBufferInput = checkNotNull(normsByteBufferInput);
+        return true;
+    }
+
     @Override
     public void close() throws IOException {
         postingsByteBufferInput.close();
         postingsByteBufferInput.reset();
+
+        normsByteBufferInput.close();
+        normsByteBufferInput.reset();
         // We want to make sure the MappedByteBuffer gets GC
         postingsByteBufferInput.setBuffer(ByteBuffer.allocate(1));
         postingsByteBufferInput = null;
         postingsMappedByteBuffer = null;
+
+        normsByteBufferInput.setBuffer(ByteBuffer.allocate(1));
+        normsByteBufferInput = null;
+        normsMappedByteBuffer = null;
     }
 
 }
