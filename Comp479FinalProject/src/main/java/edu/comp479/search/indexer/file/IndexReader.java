@@ -31,7 +31,7 @@ public abstract class IndexReader implements Closeable {
      * 
      * <p>
      * By default the only file read on construction is the descriptor. Streams are
-     * not opened for reading until they are loaded.
+     * not opened for reading until they are loaded by the implementing class.
      * 
      * <p>
      * The following files will be read for this index:<br>
@@ -82,6 +82,17 @@ public abstract class IndexReader implements Closeable {
         return builder.build();
     }
 
+    /**
+     * Reads and decode the next dictionary entry from the dictionary file given by
+     * the {@link Input}.
+     * 
+     * @see #decodePostingsList(Input, long)
+     * @param input      Kryo Input to the dictionary file.
+     * @param lastOffSet offset to the postings list of the last read dictionary
+     *                   entry, 0 for the first.
+     * 
+     * @return A dictionary entry linked to a postings list offset
+     */
     protected DictionaryEntryLinked decodeDictionaryEntry(Input input, long lastOffSet) {
         checkNotNull(input);
         checkArgument(lastOffSet >= 0, "Offset cannot be a negative number. Given offset: %s", lastOffSet);
@@ -94,6 +105,19 @@ public abstract class IndexReader implements Closeable {
         return new DictionaryEntryLinked(term, docFreq, sentiment, freqDelta + lastOffSet);
     }
 
+    /**
+     * Reads and decode the next postings list from the posting file given by the
+     * {@link Input}.
+     * 
+     * The docFrequency should be found from the dictionary file of the inverted
+     * index.
+     * 
+     * 
+     * @see #decodeDictionaryEntry(Input, long)
+     * @param input        Kryo Input to the postings file.
+     * @param docFrequency Number of posting to read from the {@link Input}.
+     * @return A new immutable list of posting.
+     */
     protected ImmutableList<Posting> decodePostingsList(Input input, long docFrequency) {
         checkNotNull(input);
         checkArgument(docFrequency > 0, "Document frequency should be greater than 0. Given docFreq: %s", docFrequency);
@@ -110,6 +134,15 @@ public abstract class IndexReader implements Closeable {
         return builder.build();
     }
 
+    /**
+     * Reads and decode a single posting from the given {@link Input} to the
+     * postings file.
+     * 
+     * @param input     Kryo Input to the postings file.
+     * @param lastDocId The last document id for this postings list, 0 if this is
+     *                  the first.
+     * @return the next {@link Posting} read from file.
+     */
     protected Posting decodePosting(Input input, long lastDocId) {
         checkNotNull(input);
 
@@ -119,20 +152,6 @@ public abstract class IndexReader implements Closeable {
 
         return new Posting(lastDocId + docDelta, termFreq, tfIdf);
     }
-
-    /**
-     * Open the directory file descriptor.
-     * 
-     * @return true if successful
-     */
-    public abstract boolean openDictionary() throws IOException;
-
-    /**
-     * Load the postings file descriptor.
-     * 
-     * @return true if successful
-     */
-    public abstract boolean openPostings() throws IOException;
 
     @Override
     public abstract void close() throws IOException;

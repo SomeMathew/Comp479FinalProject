@@ -103,7 +103,7 @@ class IndexBlockBuilderTest {
 
     @Test
     void testFailOnNullString() {
-        assertThrows(IllegalArgumentException.class, () -> builder.addPosting(null, 42));
+        assertThrows(NullPointerException.class, () -> builder.addPosting(null, 42));
     }
 
     @Test

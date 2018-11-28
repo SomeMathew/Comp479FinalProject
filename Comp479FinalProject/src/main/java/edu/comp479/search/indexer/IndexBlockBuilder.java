@@ -37,9 +37,10 @@ public class IndexBlockBuilder {
      * @return True
      */
     public boolean addPosting(String term, long docId) {
-        if (term == null || term.isEmpty() || docId < 0) {
-            throw new IllegalArgumentException(String.format("Invalid posting: (%s,%d)", term, docId));
-        }
+        checkNotNull(term);
+        checkArgument(!term.isEmpty(), "Term should not be empty.");
+        checkArgument(docId >= 0, "DocId should not be less than 0. Given: %s", docId);
+
         HashMultiset<Long> postings = block.get(term);
         if (postings == null) {
             postings = HashMultiset.create();
@@ -53,9 +54,9 @@ public class IndexBlockBuilder {
     }
 
     /**
-     * Write the block to disk to {@code directory}.
+     * Write the block to disk with the given {@code indexWriter}.
      * 
-     * @param directory Directory to write the block to.
+     * @param indexWriter Writer to use to write to disk.
      * @return The index Name.
      * @throws IOException
      */

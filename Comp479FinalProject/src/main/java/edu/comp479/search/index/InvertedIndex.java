@@ -11,14 +11,14 @@ import edu.comp479.search.index.structure.DictionaryEntry;
 import edu.comp479.search.index.structure.IIndexEntry;
 import edu.comp479.search.index.structure.IndexEntry;
 import edu.comp479.search.index.structure.Posting;
-import edu.comp479.search.indexer.file.IndexReaderMemoryMapped;
+import edu.comp479.search.indexer.file.IndexReaderMemoryMappedPostings;
 
 public class InvertedIndex implements IInvertedIndex {
-    private final IndexReaderMemoryMapped indexReader;
+    private final IndexReaderMemoryMappedPostings indexReader;
     private final ImmutableMap<String, DictionaryEntry> dictionary;
     private final Map<String, Integer> sentimentDictionary;
 
-    public InvertedIndex(ImmutableMap<String, DictionaryEntry> dictionary, IndexReaderMemoryMapped indexReader,
+    public InvertedIndex(ImmutableMap<String, DictionaryEntry> dictionary, IndexReaderMemoryMappedPostings indexReader,
             Map<String, Integer> sentimentDictionary) {
         this.indexReader = checkNotNull(indexReader);
         this.sentimentDictionary = checkNotNull(sentimentDictionary);

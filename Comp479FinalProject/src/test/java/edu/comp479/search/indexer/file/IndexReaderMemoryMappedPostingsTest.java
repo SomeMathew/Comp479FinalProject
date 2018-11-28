@@ -30,14 +30,15 @@ import java.util.Arrays;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-class IndexReaderMemoryMappedTest {
+class IndexReaderMemoryMappedPostingsTest {
     @Mock
     ByteBufferInput byteBufferInputMock;
 
-    IndexReaderMemoryMapped reader;
+    IndexReaderMemoryMappedPostings reader;
 
     @BeforeAll
     static void setUpBeforeClass() throws Exception {
+        Files.createDirectories(Paths.get("./testIndex/"));
         Paths.get("./testIndex/testIndex.desc").toFile().createNewFile();
         Paths.get("./testIndex/testIndex.dic").toFile().createNewFile();
         Paths.get("./testIndex/testIndex.pst").toFile().createNewFile();
@@ -58,8 +59,8 @@ class IndexReaderMemoryMappedTest {
     @BeforeEach
     void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        reader = new IndexReaderMemoryMapped("testIndex", Paths.get("./testIndex/"));
-        reader.setPostingsByteBufferInput(byteBufferInputMock);
+        reader = new IndexReaderMemoryMappedPostings("testIndex", Paths.get("./testIndex/"));
+        reader.openPostings(byteBufferInputMock);
     }
 
     @AfterEach
