@@ -1,3 +1,5 @@
+package edu.comp479.crawler;
+
 import java.io.IOException;
 import java.util.*;
 

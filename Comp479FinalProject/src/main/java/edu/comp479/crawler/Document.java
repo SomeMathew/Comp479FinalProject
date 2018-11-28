@@ -1,3 +1,5 @@
+package edu.comp479.crawler;
+
 public class Document {
 
     private int documentId = 0;

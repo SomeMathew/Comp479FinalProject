@@ -1,5 +1,8 @@
+package edu.comp479.crawler;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class Tokenizer {
 
