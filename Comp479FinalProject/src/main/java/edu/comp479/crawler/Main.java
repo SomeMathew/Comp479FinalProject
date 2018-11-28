@@ -78,7 +78,7 @@ public class Main {
                 titles = tokenizer.getTokens(title1);
                 bodies = tokenizer.getTokens(body1);
 
-                Document doc = new Document(title, body);
+                Document doc = new Document(title1, body1);
                 documents.add(doc);
 
                 for (Map.Entry<Integer, String> entry : addedLinks.entrySet()) {
