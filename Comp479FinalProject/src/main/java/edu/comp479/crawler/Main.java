@@ -30,9 +30,12 @@ public class Main {
         String title = te.getTitle(source);
         String body = te.getHtmlBody(source);
 
-        List<String> titles = tokenizer.getTokens(title);
-        List<String> bodies = tokenizer.getTokens(body);
+        List<String> titles = new ArrayList<>();
+        titles.addAll(tokenizer.getTokens(title));
 
+        List<String> bodies = new ArrayList<>();
+        bodies.addAll(tokenizer.getTokens(body));
+        
         Document document = new Document(title, body);
 
         List<Document> documents = new ArrayList<>();
@@ -75,8 +78,8 @@ public class Main {
                 String title1 = te.getTitle(source1);
                 String body1 = te.getHtmlBody(source1);
 
-                titles = tokenizer.getTokens(title1);
-                bodies = tokenizer.getTokens(body1);
+                titles.addAll(tokenizer.getTokens(title1));
+                bodies.addAll(tokenizer.getTokens(body1));
 
                 Document doc = new Document(title1, body1);
                 documents.add(doc);
