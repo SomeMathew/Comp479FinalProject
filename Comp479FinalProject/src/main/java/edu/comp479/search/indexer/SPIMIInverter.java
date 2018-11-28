@@ -53,6 +53,17 @@ public class SPIMIInverter {
     }
 
     /**
+     * @throws IOException If the sentiment dictionary cannot be loaded.
+     * @see SPIMIInverter#SPIMIInverter(String, ITokenStream, Path, long,
+     *      IndexBlockBuilderFactory, IndexDataMapperFactory, Runtime)
+     */
+    public SPIMIInverter(String indexName, ITokenStream tokenStream, Path directory, long maxMemoryUsageMb)
+            throws IOException {
+        this(indexName, tokenStream, directory, maxMemoryUsageMb,
+                new SentimentDictionaryBuilder().loadSentimentDictionary());
+    }
+
+    /**
      * @see SPIMIInverter#SPIMIInverter(String, ITokenStream, Path, long,
      *      IndexBlockBuilderFactory, IndexDataMapperFactory, Runtime)
      */

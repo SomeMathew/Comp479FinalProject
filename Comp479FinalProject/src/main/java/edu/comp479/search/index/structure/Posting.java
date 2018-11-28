@@ -2,6 +2,8 @@ package edu.comp479.search.index.structure;
 
 import static com.google.common.base.Preconditions.*;
 
+import java.util.function.Function;
+
 public class Posting {
     private final long docId;
     private final int termFreq;
@@ -29,4 +31,8 @@ public class Posting {
         return termFreq;
     }
 
+    public Posting withWeight(Function<Posting, Float> weightComputer) {
+        Float newWeight = weightComputer.apply(this);
+        return new Posting(docId, termFreq, newWeight);
+    }
 }
