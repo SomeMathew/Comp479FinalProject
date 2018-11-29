@@ -24,6 +24,17 @@ public class IndexEntry implements IIndexEntry {
     }
 
     @Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("IndexEntry [dictionaryEntry=");
+		builder.append(dictionaryEntry);
+		builder.append(", postings=");
+		builder.append(postings);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	@Override
     public long getDocumentFrequency() {
         return dictionaryEntry.getDocFreq();
     }

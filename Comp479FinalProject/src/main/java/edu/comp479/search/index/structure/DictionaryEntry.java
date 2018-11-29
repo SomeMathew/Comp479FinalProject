@@ -17,7 +17,20 @@ public class DictionaryEntry implements Comparable<DictionaryEntry> {
         this.sentiment = sentiment;
     }
 
-    public String getTerm() {
+    @Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("DictionaryEntry [term=");
+		builder.append(term);
+		builder.append(", docFreq=");
+		builder.append(docFreq);
+		builder.append(", sentiment=");
+		builder.append(sentiment);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	public String getTerm() {
         return term;
     }
 
