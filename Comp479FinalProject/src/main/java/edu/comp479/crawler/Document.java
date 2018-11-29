@@ -6,11 +6,13 @@ public class Document {
     private long documentId = 0;
     private String title;
     private String body;
+    private String url;
 
-    public Document(String title, String body) {
+    public Document(String title, String body, String url) {
 
         this.title = title;
         this.body = body;
+        this.url = url;
         this.documentId = count;
 
         count++;
