@@ -14,7 +14,7 @@ public class CrawlerMain {
         return documents;
     }
 
-    public void execute() throws IOException {
+    public void execute(int interation) throws IOException {
 
         TextExtractionEngine te = new TextExtractionEngine();
         Webcrawler crawler = new Webcrawler();
@@ -92,7 +92,7 @@ public class CrawlerMain {
 
             counter++;
 
-        } while (counter < 100);
+        } while (counter < interation);
     }
 
     public List<Long> dumpToDisk(DocDiskManager docDiskManager) {
