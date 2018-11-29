@@ -17,6 +17,13 @@ public class Document {
 
     }
 
+    /**
+     * No-arg constructor for serialization to and from disk.
+     */
+    public Document() {
+
+    }
+
     public String getTitle() {
         return this.title;
     }
