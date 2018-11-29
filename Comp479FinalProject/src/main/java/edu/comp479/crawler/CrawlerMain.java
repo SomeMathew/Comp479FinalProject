@@ -1,7 +1,9 @@
 package edu.comp479.crawler;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CrawlerMain {
     private List<Document> documents;
@@ -89,6 +91,10 @@ public class CrawlerMain {
             counter++;
 
         } while (counter < 100);
+    }
+
+    public List<String> dumpToDisk(DocDiskManager docDiskManager) {
+        return documents.stream().map(docDiskManager::writeToDisk).collect(Collectors.toList());
     }
 
     public static void main(String[] args) throws IOException {
