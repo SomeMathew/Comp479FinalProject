@@ -42,9 +42,14 @@ public class TokenStream implements ITokenStream {
     }
 
     @Override
+    /**
+     * Returns {@code true} if there is a new token in the stream.
+     * 
+     * @return {@code true} if a new token is available.
+     */
     public boolean hasNext() {
         if (tokens == null || !tokenIter.hasNext()) {
-            if (!fetchNewToken()) {
+            if (!fetchNewTokens()) {
                 return false;
             }
         }
@@ -52,7 +57,12 @@ public class TokenStream implements ITokenStream {
         return tokenIter.hasNext();
     }
 
-    private boolean fetchNewToken() {
+    /**
+     * Retrieve the next document tokens and prepare them for the stream.
+     * 
+     * @return {@code true} if no new token are available.
+     */
+    private boolean fetchNewTokens() {
         if (!docIdsIter.hasNext()) {
             return false;
         }
