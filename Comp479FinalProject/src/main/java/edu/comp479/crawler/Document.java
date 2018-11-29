@@ -1,14 +1,13 @@
 package edu.comp479.crawler;
 
 public class Document {
+    private static long count = 0;
 
-    private int documentId = 0;
+    private long documentId = 0;
     private String title;
     private String body;
-    private int count = 0;
 
-
-    public Document(String title, String body){
+    public Document(String title, String body) {
 
         this.title = title;
         this.body = body;
@@ -18,15 +17,15 @@ public class Document {
 
     }
 
-    public String getTitle(){
+    public String getTitle() {
         return this.title;
     }
 
-    public String getBody(){
+    public String getBody() {
         return this.body;
     }
 
-    public int getDocumentId(){
+    public long getDocumentId() {
         return this.documentId;
     }
 }
