@@ -1,6 +1,5 @@
 package edu.comp479.search.tokenizer;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -20,7 +19,7 @@ public class TokenStream implements ITokenStream {
     private List<String> tokens;
     private Iterator<String> tokenIter;
 
-    public TokenStream(DocDiskManager docDiskManager, List<Long> docIdList, Path directory) {
+    public TokenStream(DocDiskManager docDiskManager, List<Long> docIdList) {
         this.docIds = docIdList;
         this.docIdsIter = docIdList.iterator();
         this.docDiskManager = docDiskManager;

@@ -28,13 +28,13 @@ public class Indexer implements IIndexer {
     private final ITokenStream tokenStream;
     private final Path constructionDir;
     private final Path outputDir;
-    private final long maxMemoryUsageMb;
+    private final int maxMemoryUsageMb;
     private final int inputBufferCount;
     private final int inputBufferSize;
     private final int outputBufferSize;
 
     public Indexer(String indexName, ITokenStream tokenStream, Path constructionDir, Path outputDir,
-            long maxMemoryUsageMb, int inputBufferCount, int inputBufferSize, int outputBufferSize) throws IOException {
+            int maxMemoryUsageMb, int inputBufferCount, int inputBufferSize, int outputBufferSize) {
         this.indexName = checkNotNull(indexName);
         this.tokenStream = checkNotNull(tokenStream);
         this.constructionDir = checkNotNull(constructionDir);

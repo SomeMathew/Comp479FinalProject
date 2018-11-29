@@ -26,12 +26,58 @@ public final class Program {
                 .help("build constructs the inverted index.\nsearch executes the search query module.");
 
         Subparser buildParser = subparsers.addParser("build").description("Builds the inverted index.");
-        buildParser.addArgument("--dest-dir", "-d")
-                .help("Selects the destination directory for the inverted index")
+        
+        buildParser.addArgument("indexName")
+                .help("Name of the index")
                 .action(Arguments.store())
-                .metavar("DIR")
-                .dest("directory")
-                .setDefault(".");
+                .metavar("INDEX_NAME")
+                .dest("indexName");
+        
+        buildParser.addArgument("--dest-dir", "-d")
+                .help("Selects the destination directory for the inverted index.")
+                .action(Arguments.store())
+                .metavar("DIR_INDEX")
+                .dest("indexDir")
+                .setDefault("./index/");
+        
+        buildParser.addArgument("--doc-cache-dir", "-c")
+                .help("Selects the destination directory for the document cache.")
+                .action(Arguments.store())
+                .metavar("DIR_CACHE")
+                .dest("cacheDir")
+                .setDefault("./cache/");
+        
+        buildParser.addArgument("--construct-dir")
+                .help("Selects the directory for construction of the index.")
+                .action(Arguments.store())
+                .metavar("DIR_CONSTRUCT")
+                .dest("constructDir")
+                .setDefault("./construct/");
+        
+        buildParser.addArgument("--construct-max-mem", "-m")
+                .help("Selects the maximum memory use in MB when constructing the inverted index.")
+                .action(Arguments.store())
+                .metavar("MAX_MEM_USE")
+                .type(Integer.class)
+                .dest("maxMemUse")
+                .setDefault(512);
+        
+        buildParser.addArgument("--construct-buff-count", "-b")
+                .help("Selects the number of input buffer to use when constructing the index (Merge process).")
+                .action(Arguments.store())
+                .metavar("INPUT_BUFF_COUNT")
+                .type(Integer.class)
+                .dest("inputBufferCount")
+                .setDefault(8);
+        
+        buildParser.addArgument("--construct-buff-size", "-s")
+                .help("Selects the size of the buffers (in KB) to use when constructing the index (Merge process).")
+                .action(Arguments.store())
+                .metavar("BUFF_SIZE_KB")
+                .type(Integer.class)
+                .dest("bufferSize")
+                .setDefault(4096);
+        
         buildParser.setDefault("appObj", new AppIndex());
         
         

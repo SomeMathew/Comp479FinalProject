@@ -24,7 +24,7 @@ public class SPIMIInverter {
 
     private final String indexName;
     private final ITokenStream tokenStream;
-    private final long maxMemoryUsageMb;
+    private final long maxMemoryUsageKb;
     private final Path directory;
 
     private final IndexBlockBuilderFactory blockBuilderFactory;
@@ -102,7 +102,7 @@ public class SPIMIInverter {
         if (maxMemoryUsageMb < MIN_MEMORY_USE) {
             maxMemoryUsageMb = MIN_MEMORY_USE;
         }
-        this.maxMemoryUsageMb = maxMemoryUsageMb;
+        this.maxMemoryUsageKb = ((long) maxMemoryUsageMb) * 1024 * 1024;
     }
 
     /**
@@ -135,9 +135,10 @@ public class SPIMIInverter {
                 return null;
             }
             LOGGER.log(Level.INFO, "New block written to disk: " + indexBlockName);
+            return indexBlockName;
+        } else {
+            return null;
         }
-
-        return indexBlockName;
     }
 
     /**
@@ -147,6 +148,6 @@ public class SPIMIInverter {
      */
     private boolean validateMemoryUsage() {
         long totalMemoryUsage = runtime.totalMemory();
-        return totalMemoryUsage < this.maxMemoryUsageMb;
+        return totalMemoryUsage < this.maxMemoryUsageKb;
     }
 }

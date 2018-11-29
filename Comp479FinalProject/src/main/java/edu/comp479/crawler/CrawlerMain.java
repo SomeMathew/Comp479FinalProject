@@ -2,9 +2,12 @@ package edu.comp479.crawler;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class CrawlerMain {
+    private static Logger LOGGER = Logger.getLogger(CrawlerMain.class.getName());
+
     private List<Document> documents;
 
     public List<Document> getDocuments() {
@@ -66,6 +69,7 @@ public class CrawlerMain {
 
             if (firstPageLinks.get(counter).startsWith("/") && (!visitedLinks.contains(firstPageLinks.get(counter)))) {
                 String urlNew = url + firstPageLinks.get(counter);
+                LOGGER.info("Extracting " + urlNew);
                 String source1 = crawler.getUrlContents(urlNew);
 
                 visitedLinks.add(firstPageLinks.get(counter));
@@ -73,7 +77,6 @@ public class CrawlerMain {
 
                 // titles.add(te.getTitle(source1));
                 // bodies.addAll(te.getAbsoluteText(source1));
-
                 String title1 = te.getTitle(source1);
                 String body1 = te.getHtmlBody(source1);
 

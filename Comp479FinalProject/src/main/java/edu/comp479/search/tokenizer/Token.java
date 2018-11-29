@@ -14,14 +14,12 @@ public class Token implements IToken {
 
     @Override
     public String getTerm() {
-        // TODO Auto-generated method stub
-        return null;
+        return term;
     }
 
     @Override
     public long getDocId() {
-        // TODO Auto-generated method stub
-        return 0;
+        return docId;
     }
 
 }

@@ -22,10 +22,12 @@ public class DocDiskManager {
     /**
      * Creates a new {@link DocDiskManager} to dump and retrieve documents from a
      * disk cache.
+     * @throws IOException 
      */
-    public DocDiskManager(Path directory) {
+    public DocDiskManager(Path directory) throws IOException {
         kryo = new Kryo();
         kryo.register(Document.class);
+        Files.createDirectories(directory);
         this.directory = directory;
     }
 
