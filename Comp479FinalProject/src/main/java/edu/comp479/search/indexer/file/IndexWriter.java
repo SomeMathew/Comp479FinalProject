@@ -5,12 +5,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.List;
 
 import static java.util.Comparator.comparingLong;
 
 import com.esotericsoftware.kryo.io.Output;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
 
 import edu.comp479.search.index.structure.DictionaryEntry;
 import edu.comp479.search.index.structure.Posting;
@@ -181,21 +182,20 @@ public class IndexWriter implements Closeable {
 
         descriptorOutput.writeInt(IndexFileUtility.FILE_VERSION);
         descriptorOutput.writeLong(termCount);
+        descriptorOutput.writeLong(docCount);
 
         long maxDocId = normEntries.stream().max(comparingLong(NormFileEntry::getDocId))
                 .orElse(new NormFileEntry(0, 0, 0)).getDocId();
-        descriptorOutput.writeLong(maxDocId);
+        normOutput.writeLong(maxDocId);
 
-        Iterator<NormFileEntry> iter = normEntries.iterator();
-        NormFileEntry nextEntry = null;
+        PeekingIterator<NormFileEntry> iter = Iterators.peekingIterator(normEntries.iterator());
         for (long i = 0; i < maxDocId; i++) {
-            if (nextEntry == null && iter.hasNext()) {
-                nextEntry = iter.next();
-            }
-            if (nextEntry.getDocId() == i) {
-                writeNormEntry(nextEntry);
-            } else {
-                writeNormEntry(null);
+            if (iter.hasNext()) {
+                if (iter.peek().getDocId() == i) {
+                    writeNormEntry(iter.next());
+                } else {
+                    writeNormEntry(null);
+                }
             }
         }
     }
