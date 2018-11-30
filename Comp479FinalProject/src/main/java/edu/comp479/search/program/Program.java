@@ -79,9 +79,9 @@ public final class Program {
                 .setDefault(8);
         
         buildParser.addArgument("--construct-buff-size", "-s")
-                .help("Selects the size of the buffers (in KB) to use when constructing the index (Merge process).")
+                .help("Selects the size of the buffers (in bytes) to use when constructing the index (Merge process).")
                 .action(Arguments.store())
-                .metavar("BUFF_SIZE_KB")
+                .metavar("BUFF_SIZE")
                 .type(Integer.class)
                 .dest("bufferSize")
                 .setDefault(4096);
