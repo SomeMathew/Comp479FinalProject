@@ -52,6 +52,14 @@ public class CrawlerMain {
         }
 
         int counter = 0;
+        List<String> socialMedia = new ArrayList<>();
+        socialMedia.add("facebook");
+        socialMedia.add("twitter");
+        socialMedia.add("linkedin");
+        socialMedia.add("instagram");
+        socialMedia.add("flickr");
+        socialMedia.add("pinterest");
+        socialMedia.add("youtube");
 
         /**
          *
@@ -87,6 +95,29 @@ public class CrawlerMain {
                     firstPageLinks.add(entry.getValue());
                 }
 
+            }else if((!visitedLinks.contains(firstPageLinks.get(counter)) && (!socialMedia.contains(firstPageLinks.get(counter))))){
+
+                String urlNew = firstPageLinks.get(counter);
+                String source1 = crawler.getUrlContents(urlNew);
+
+                visitedLinks.add(firstPageLinks.get(counter));
+                addedLinks = te.extractLinksFromHtml(source1);
+
+
+                String title1 = te.getTitleUrl(urlNew);
+                String body1 = te.getBodyUrl(urlNew);
+
+                //titles.addAll(tokenizer.getTokens(title1));
+                //bodies.addAll(tokenizer.getTokens(body1));
+
+                Document doc = new Document(title1, body1, urlNew);
+                documents.add(doc);
+
+                for (Map.Entry<Integer, String> entry : addedLinks.entrySet()) {
+
+                    firstPageLinks.add(entry.getValue());
+
+                }
             }
 
             counter++;
