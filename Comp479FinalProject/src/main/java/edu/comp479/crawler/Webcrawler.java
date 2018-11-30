@@ -13,6 +13,12 @@ import java.net.URL;
  */
 public class Webcrawler {
 
+    /**
+     * Gets the URl Contents from a given URL
+     *
+     * @param urlPath a given url
+     * @return String of the url contents
+     */
     public String getUrlContents(String urlPath) {
 
         URL url;
