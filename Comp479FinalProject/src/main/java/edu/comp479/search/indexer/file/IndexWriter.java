@@ -184,7 +184,7 @@ public class IndexWriter implements Closeable {
 
         long maxDocId = normEntries.stream().max(comparingLong(NormFileEntry::getDocId))
                 .orElse(new NormFileEntry(0, 0, 0)).getDocId();
-        normOutput.writeLong(maxDocId);
+        descriptorOutput.writeLong(maxDocId);
 
         Iterator<NormFileEntry> iter = normEntries.iterator();
         NormFileEntry nextEntry = null;
