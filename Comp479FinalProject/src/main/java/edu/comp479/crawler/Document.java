@@ -9,14 +9,12 @@ public class Document {
     private String url;
 
     public Document(String title, String body, String url) {
-
         this.title = title;
         this.body = body;
         this.url = url;
         this.documentId = count;
 
         count++;
-
     }
 
     /**
@@ -24,6 +22,10 @@ public class Document {
      */
     public Document() {
 
+    }
+
+    public String getUrl() {
+        return url;
     }
 
     public String getTitle() {

@@ -2,8 +2,10 @@ package edu.comp479.search.indexer;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.Comparator.comparing;
 
@@ -20,10 +22,12 @@ import edu.comp479.search.indexer.file.IndexWriter;
 public class IndexBlockBuilder {
     private final Map<String, Integer> sentimentDictionary;
     private final Map<String, HashMultiset<Long>> block;
+    private final Set<Long> docIds;
 
     public IndexBlockBuilder(Map<String, Integer> sentimentDictionary) {
         this.sentimentDictionary = checkNotNull(sentimentDictionary);
         this.block = new HashMap<>();
+        this.docIds = new HashSet<>();
     }
 
     /**
@@ -41,6 +45,7 @@ public class IndexBlockBuilder {
         checkArgument(!term.isEmpty(), "Term should not be empty.");
         checkArgument(docId >= 0, "DocId should not be less than 0. Given: %s", docId);
 
+        docIds.add(docId);
         HashMultiset<Long> postings = block.get(term);
         if (postings == null) {
             postings = HashMultiset.create();
@@ -72,6 +77,7 @@ public class IndexBlockBuilder {
             String term = blockEntry.getKey();
             indexWriter.write(new DictionaryEntry(term, postingsList.size(), getSentimentValue(term)), postingsList);
         }
+        indexWriter.writeFinalizeIndex(docIds.size());
     }
 
     /**

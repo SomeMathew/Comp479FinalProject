@@ -33,6 +33,14 @@ public final class Program {
                 .metavar("INDEX_NAME")
                 .dest("indexName");
         
+        buildParser.addArgument("--crawler-max-count", "-i")
+            .help("Selects the maximum number of document to retrieve by the spider.")
+            .action(Arguments.store())
+            .metavar("MAX_DOC")
+            .type(Integer.class)
+            .dest("docMaxCount")
+            .setDefault(250);
+        
         buildParser.addArgument("--dest-dir", "-d")
                 .help("Selects the destination directory for the inverted index.")
                 .action(Arguments.store())

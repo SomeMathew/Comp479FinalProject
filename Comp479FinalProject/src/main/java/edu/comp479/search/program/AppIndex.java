@@ -28,17 +28,18 @@ public class AppIndex implements IApp {
         int maxMemUseMb = args.getInt("maxMemUse");
         int inputBufferCount = args.getInt("inputBufferCount");
         int bufferSize = args.getInt("bufferSize");
+        int maxDocCount = args.getInt("docMaxCount");
 
-        index(indexDir, cacheDir, constructDir, indexName, maxMemUseMb, inputBufferCount, bufferSize);
+        index(indexDir, cacheDir, constructDir, indexName, maxMemUseMb, inputBufferCount, bufferSize, maxDocCount);
     }
 
     public void index(String indexDir, String cacheDir, String constructDir, String indexName, int maxMemoryUsageMb,
-            int inputBufferCount, int bufferSize) {
+            int inputBufferCount, int bufferSize, int maxDocCount) {
         CrawlerMain crawler = new CrawlerMain();
 
         LOGGER.info("Executing the Crawler sub-module...");
         try {
-            crawler.execute();
+            crawler.execute(maxDocCount);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Unable to run the crawler to completion, aborting.", e);
             return;
@@ -69,6 +70,9 @@ public class AppIndex implements IApp {
             LOGGER.log(Level.SEVERE, "Unable to run the indexer to completion, aborting.", e);
             return;
         }
+
+        LOGGER.info(String.format("Index completed succesfully! IndexName: %s, Index Directory: %s", indexName,
+                indexPath.toString()));
     }
 
 }

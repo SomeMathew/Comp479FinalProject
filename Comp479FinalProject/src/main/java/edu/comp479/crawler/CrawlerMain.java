@@ -39,7 +39,7 @@ public class CrawlerMain {
         String title = te.getTitle(source);
         String body = te.getHtmlBody(source);
 
-        Document document = new Document(title, body);
+        Document document = new Document(title, body, firstUrl);
 
         documents = new ArrayList<>();
         documents.add(document);
@@ -69,7 +69,6 @@ public class CrawlerMain {
 
             if (firstPageLinks.get(counter).startsWith("/") && (!visitedLinks.contains(firstPageLinks.get(counter)))) {
                 String urlNew = url + firstPageLinks.get(counter);
-                LOGGER.info("Extracting " + urlNew);
                 String source1 = crawler.getUrlContents(urlNew);
 
                 visitedLinks.add(firstPageLinks.get(counter));
@@ -80,7 +79,7 @@ public class CrawlerMain {
                 String title1 = te.getTitle(source1);
                 String body1 = te.getHtmlBody(source1);
 
-                Document doc = new Document(title1, body1);
+                Document doc = new Document(title1, body1, urlNew);
                 documents.add(doc);
 
                 for (Map.Entry<Integer, String> entry : addedLinks.entrySet()) {
@@ -96,13 +95,14 @@ public class CrawlerMain {
     }
 
     public List<Long> dumpToDisk(DocDiskManager docDiskManager) {
+        LOGGER.info("Creating document cache on disk.");
         return documents.stream().peek(docDiskManager::writeToDisk).map(Document::getDocumentId)
                 .collect(Collectors.toList());
     }
 
     public static void main(String[] args) throws IOException {
         CrawlerMain main = new CrawlerMain();
-        main.execute();
+        main.execute(10);
         System.out.println("end");
     }
 }

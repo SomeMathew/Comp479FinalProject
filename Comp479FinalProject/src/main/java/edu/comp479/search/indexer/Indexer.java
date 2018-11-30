@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
@@ -24,6 +25,8 @@ import static edu.comp479.search.util.Weights.tfIdf;
 import static com.google.common.base.Preconditions.*;
 
 public class Indexer implements IIndexer {
+    private static final Logger LOGGER = Logger.getLogger(Indexer.class.getName());
+
     private final String indexName;
     private final ITokenStream tokenStream;
     private final Path constructionDir;
@@ -49,14 +52,17 @@ public class Indexer implements IIndexer {
     public void execute() throws IOException {
         SPIMIInverter spimi = new SPIMIInverter(indexName, tokenStream, constructionDir, maxMemoryUsageMb);
 
+        LOGGER.info("Building the initial blocks for the index...");
         List<String> blocksNames = buildBlocks(spimi);
 
+        LOGGER.info("Merging blocks...");
         IndexBlockMerger merger = new IndexBlockMerger(indexName, blocksNames, constructionDir, constructionDir,
                 new IndexDataMapperFactory(), inputBufferCount, inputBufferSize, outputBufferSize);
 
         String finalBlockName = merger.externalMultiwayMerge();
 
-        computeWeightsAndCreateFinalIndex(finalBlockName, outputDir);
+        LOGGER.info("Precomputing weights and building the final index...");
+        computeWeightsAndCreateFinalIndex(finalBlockName, indexName, constructionDir, outputDir);
     }
 
     /**
@@ -84,16 +90,18 @@ public class Indexer implements IIndexer {
      * document and create the final index.
      * 
      * @param indexName Name of the index to write
-     * @param dir       Directory where to write the index
+     * @param inDir     Directory where to read the last block
+     * @param outDir    Directory where to write the final index
      * @throws IOException
      */
-    private void computeWeightsAndCreateFinalIndex(String indexName, Path dir) throws IOException {
-        IndexReaderStreamed indexReader = new IndexReaderStreamed(indexName, dir);
-        IndexWriter indexWriter = new IndexWriter(indexName, dir);
+    private void computeWeightsAndCreateFinalIndex(String lastBlockName, String indexName, Path inDir, Path outDir)
+            throws IOException {
+        IndexReaderStreamed indexReader = new IndexReaderStreamed(lastBlockName, inDir);
+        IndexWriter indexWriter = new IndexWriter(indexName, outDir);
 
         Map<Long, NormFileEntry> normAccumulator = new HashMap<>();
         long docCountN = indexReader.getDocCount();
-
+        indexReader.open();
         while (indexReader.hasNextEntry()) {
             IndexEntry nextIndexEntry = indexReader.readNextEntry();
             List<Posting> postingsListWithWeight = computePostingWeight(docCountN, nextIndexEntry);

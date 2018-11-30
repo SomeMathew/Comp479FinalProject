@@ -7,10 +7,10 @@ import java.util.NoSuchElementException;
 
 import edu.comp479.crawler.DocDiskManager;
 import edu.comp479.crawler.Document;
-import edu.comp479.crawler.Tokenizer;
 
 public class TokenStream implements ITokenStream {
     private DocDiskManager docDiskManager;
+    private TokenizerNormalize tokenizer;
 
     private List<Long> docIds;
     private Iterator<Long> docIdsIter;
@@ -23,6 +23,7 @@ public class TokenStream implements ITokenStream {
         this.docIds = docIdList;
         this.docIdsIter = docIdList.iterator();
         this.docDiskManager = docDiskManager;
+        this.tokenizer = new TokenizerNormalize();
     }
 
     @Override
@@ -68,14 +69,10 @@ public class TokenStream implements ITokenStream {
         this.currentDocId = docIdsIter.next();
         Document nextDoc = docDiskManager.readFromDisk(currentDocId);
 
-        Tokenizer tokenizer = new Tokenizer();
         List<String> tokens = new ArrayList<>();
-        tokens.addAll(tokenizer.getTokens(nextDoc.getTitle()));
-        tokens.addAll(tokenizer.getTokens(nextDoc.getBody()));
-
-        tokens = tokenizer.removeCap(tokens);
-        tokens = tokenizer.removePunctuation(tokens);
-        tokens = tokenizer.removeDigits(tokens);
+        tokenizer.analyzeAppendToList(nextDoc.getTitle(), tokens);
+        tokenizer.analyzeAppendToList(nextDoc.getBody(), tokens);
+        
 
         this.tokens = tokens;
         this.tokenIter = tokens.iterator();

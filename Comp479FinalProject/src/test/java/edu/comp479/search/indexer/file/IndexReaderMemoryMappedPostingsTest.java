@@ -46,6 +46,7 @@ class IndexReaderMemoryMappedPostingsTest {
         try (Output output = new Output(Files.newOutputStream(Paths.get("./testIndex/testIndex.desc")))) {
             output.writeInt(IndexFileUtility.FILE_VERSION);
             output.writeLong(42);
+            output.writeLong(42);
         }
     }
 
@@ -60,7 +61,7 @@ class IndexReaderMemoryMappedPostingsTest {
     void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         reader = new IndexReaderMemoryMapped("testIndex", Paths.get("./testIndex/"));
-        reader.open(byteBufferInputMock);
+        reader.openPostings(byteBufferInputMock);
     }
 
     @AfterEach
