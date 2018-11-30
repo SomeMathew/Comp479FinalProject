@@ -24,7 +24,7 @@ public class SPIMIInverter {
 
     private final String indexName;
     private final ITokenStream tokenStream;
-    private final long maxMemoryUsageKb;
+    private final long maxMemoryUsageByte;
     private final Path directory;
 
     private final IndexBlockBuilderFactory blockBuilderFactory;
@@ -102,7 +102,7 @@ public class SPIMIInverter {
         if (maxMemoryUsageMb < MIN_MEMORY_USE) {
             maxMemoryUsageMb = MIN_MEMORY_USE;
         }
-        this.maxMemoryUsageKb = ((long) maxMemoryUsageMb) * 1024 * 1024;
+        this.maxMemoryUsageByte = ((long) maxMemoryUsageMb) * 1024 * 1024;
     }
 
     /**
@@ -148,6 +148,6 @@ public class SPIMIInverter {
      */
     private boolean validateMemoryUsage() {
         long totalMemoryUsage = runtime.totalMemory();
-        return totalMemoryUsage < this.maxMemoryUsageKb;
+        return totalMemoryUsage < this.maxMemoryUsageByte;
     }
 }

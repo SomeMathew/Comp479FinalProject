@@ -106,7 +106,7 @@ class SPIMIInverterTest {
         when(blockBuilderFactoryMock.createIndexBlockBuilder()).thenReturn(indexBlockBuilderMock);
         when(indexDataMapperFactoryMock.createIndexWriter(any(), any())).thenReturn(indexWriterMock);
 
-        when(runtime.totalMemory()).thenReturn(1l, 1l, 128l);
+        when(runtime.totalMemory()).thenReturn(1l, 1l, 250l * 1024 * 1024);
 
         when(tokenStreamMock.hasNext()).then(returnTrueTimes(3));
         when(tokenStreamMock.next()).thenReturn(new Token("term1", 0), new Token("term2", 1), new Token("term3", 2));
