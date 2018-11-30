@@ -20,7 +20,7 @@ public class DictionaryEntry implements Comparable<DictionaryEntry> {
     @Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("DictionaryEntry [term=");
+		builder.append("[");
 		builder.append(term);
 		builder.append(", docFreq=");
 		builder.append(docFreq);

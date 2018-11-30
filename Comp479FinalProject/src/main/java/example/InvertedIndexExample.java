@@ -15,7 +15,7 @@ public class InvertedIndexExample {
     }
 
     public static void main(String args[]) throws IOException {
-        IndexReaderMemoryMapped indexReader = new IndexReaderMemoryMapped("testIndex", Paths.get("./testIndex/index/"));
+        IndexReaderMemoryMapped indexReader = new IndexReaderMemoryMapped("testLargeIndex", Paths.get("./testIndex/index/"));
         indexReader.open();
         IndexFactory indexFactory = new IndexFactory();
         IInvertedIndex index = indexFactory.getIndex(indexReader);

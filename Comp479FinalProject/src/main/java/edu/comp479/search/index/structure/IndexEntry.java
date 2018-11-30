@@ -26,11 +26,10 @@ public class IndexEntry implements IIndexEntry {
     @Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("IndexEntry [dictionaryEntry=");
+		builder.append("Dictionary=");
 		builder.append(dictionaryEntry);
 		builder.append(", postings=");
 		builder.append(postings);
-		builder.append("]");
 		return builder.toString();
 	}
 

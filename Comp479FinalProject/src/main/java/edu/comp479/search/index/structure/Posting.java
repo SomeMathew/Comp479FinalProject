@@ -22,13 +22,13 @@ public class Posting {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Posting [docId=");
+		builder.append("(docId=");
 		builder.append(docId);
 		builder.append(", termFreq=");
 		builder.append(termFreq);
 		builder.append(", tfIdf=");
 		builder.append(tfIdf);
-		builder.append("]");
+		builder.append(")");
 		return builder.toString();
 	}
 
