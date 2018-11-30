@@ -13,6 +13,19 @@ public class IndexFactory {
     public IndexFactory() {
     }
 
+    /**
+     * Retrieves an existing index pointed to by the given
+     * {@link IndexReaderMemoryMapped}.
+     * 
+     * <p>
+     * <b>Note:</B> The {@link IndexReaderMemoryMapped} must have been completely
+     * initialized by the user by {@link IndexReaderMemoryMapped#open()}.
+     * 
+     * @param indexReader Initialized and opened indexReader.
+     * @return An {@link IInvertedIndex} backed by the given
+     *         {@link IndexReaderMemoryMapped}.
+     * @throws IOException
+     */
     public IInvertedIndex getIndex(IndexReaderMemoryMapped indexReader) throws IOException {
         checkNotNull(indexReader);
         Map<String, Integer> sentimentDict = new SentimentDictionaryBuilder().loadSentimentDictionary();
