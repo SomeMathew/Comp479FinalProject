@@ -17,6 +17,34 @@ public class TextExtractionEngine {
 
     private final String ENCODING = "UTF-8";
 
+    public String getTitleUrl(String url){
+
+        String title = "";
+
+        try{
+            Document doc = Jsoup.connect(url).timeout(50000).get();
+            title = doc.title();
+
+        }catch (IOException e){
+            System.out.println("Connection Timeout");
+        }
+
+        return title;
+    }
+
+    public String getBodyUrl(String url){
+        String body = "";
+
+        try{
+            Document doc = Jsoup.connect(url).timeout(50000).get();
+            body = doc.text();
+
+        }catch (IOException e){
+            System.out.println("Connection Timeout");
+        }
+
+        return body;
+    }
 
     public String getTitle(String htmlContents){
         Document doc = Jsoup.parse(htmlContents, ENCODING);
