@@ -154,6 +154,19 @@ public class SearchEngine {
         return results;
     }
 
+    public List<Integer> getPostings(String query) {
+        query = query.toLowerCase().trim();
+
+        List<Integer> docIdList = new ArrayList();
+        List<String> tmpResult = extractKeyword(query, true);
+        for (String item : tmpResult) {
+            int docId = Integer.valueOf(item);
+            docIdList.add(docId);
+        }
+        return docIdList;
+    }    
+    
+    
     /**
      * find the common elements of two lists
      *

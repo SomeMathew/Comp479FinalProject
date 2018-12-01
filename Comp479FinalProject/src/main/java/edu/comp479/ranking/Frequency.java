@@ -26,23 +26,24 @@ public class Frequency {
     public Frequency(String indexPath, String datasetPath) throws IOException {
         FileOperations fo = new FileOperations();
         myIndex = fo.readRawIndexFile(indexPath);
-
         dataset = fo.readDataMap(datasetPath);
     }
 
+    // 'tf-idf' value
     public double getTermFreqInvDocFrequency(String term, int docId) {
         double tf = getTermFrequencyInDocument(term, docId);
         int collectionSize = dataset.size();
         double idf = getInverseDocFrequency(term, collectionSize);
+        double tf_idf = tf * idf;
 
-        return tf * idf;
+        return tf_idf;
     }
 
-    private int getDocumentFrequency(String term) {
+    public int getDocumentFrequency(String term) {
         int df = 0;
 
         if (myIndex.containsKey(term.toLowerCase())) {
-            df += myIndex.get(term).size();
+            df += myIndex.get(term.toLowerCase()).size();
         }
         if (myIndex.containsKey(term.toUpperCase())) {
             df += myIndex.get(term.toUpperCase()).size();
@@ -51,6 +52,7 @@ public class Frequency {
         return df;
     }
 
+    // 'idf' value
     private double getInverseDocFrequency(String term, int collectionSize) {
         int df = getDocumentFrequency(term);
         double div = 0;
@@ -64,7 +66,7 @@ public class Frequency {
         return idf;
     }
 
-    private int getTermFrequencyInDocument(String term, int docId) {
+    public int getTermFrequencyInDocument(String term, int docId) {
         List<String> docContents = getRecord(docId);
         int freq = 0;
 
@@ -75,6 +77,20 @@ public class Frequency {
         }
 
         return freq;
+    }
+
+    public int getDocumentLength(int docId) {
+        List<String> docContents = getRecord(docId);
+        return docContents.size();
+    }
+
+    public double getCosineNormalization(List<Double> wightsList) {
+        double sumSquar = 0.0;
+        for (Double weight : wightsList) {
+            sumSquar += Math.pow(weight, 2);
+        }
+        double normalizedValue = (double) 1 / Math.sqrt(sumSquar);
+        return normalizedValue;
     }
 
     private List<String> getRecord(int docId) {
@@ -92,7 +108,6 @@ public class Frequency {
             for (String item : queryList) {
                 double weight = calculateWeight(item, docId);
                 sumScore += weight;
-
             }// end of for
 
             DocumentScore ds = new DocumentScore();

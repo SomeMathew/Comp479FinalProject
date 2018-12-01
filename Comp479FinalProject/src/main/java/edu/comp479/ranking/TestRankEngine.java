@@ -1,45 +1,44 @@
 package edu.comp479.ranking;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * This test class runs the pipeline of searching a query through index and prints
- * the ranked results based on their score and sentiment values.
- * 
+ * This test class runs the pipeline of searching a query through index and
+ * prints the ranked results based on their score and sentiment values.
+ *
  * @author Mohsen Parisay <mohsenparisay@gmail.com>
- * @version <1.0> - <19.nov.2018>
+ * @version <1.1> - <1.dec.2018>
  */
 public class TestRankEngine {
 
     public static void main(String[] args) throws IOException {
 
-        String query = "nervously abductions";
+        RankEngine ren = new RankEngine();
 
         FileOperations fo = new FileOperations();
         String afinnPath = "AFINN/AFINN-111.txt";
         Map<String, Integer> sentiment = fo.readAfinnFile(afinnPath);
 
-        RankEngine re = new RankEngine();
-        Map<Integer, DocumentScore> scores = re.rankDocuments(query, sentiment);
+        List<String> queryList = new ArrayList();
+        queryList.add("superb");
+        queryList.add("Yoshiro");
 
-        double totalSentimentValue = re.getTotalSentimentValue();
-        System.out.println("Total Sentiment [" + totalSentimentValue + "]\n");
+        Map<Integer, HashMap<Integer, Double>> sortedMap = ren.rankDocuments(queryList, sentiment);
+        for (Map.Entry<Integer, HashMap<Integer, Double>> entry : sortedMap.entrySet()) {
+            Integer index = entry.getKey();
+            HashMap<Integer, Double> value = entry.getValue();
+            for (Map.Entry<Integer, Double> entry1 : value.entrySet()) {
+                Integer docId = entry1.getKey();
+                Double score = entry1.getValue();
 
-        Map<Integer, Double> scoreMap = new HashMap();
+                System.out.println(index + ": " + docId + ": [" + score + "]");
+            }
 
-        for (Map.Entry<Integer, DocumentScore> entry : scores.entrySet()) {
-            Integer key = entry.getKey();
-            DocumentScore value = entry.getValue();
-            double totalScore = value.calculateTotalScore(value.getWeight(), value.getSentiment());
-
-            scoreMap.put(key, totalScore);
         }
-
-        SortScores ssc = new SortScores();
-        ssc.printMap(scoreMap, totalSentimentValue);
-        System.out.println("");
     }
 
 }

@@ -2,6 +2,7 @@ package edu.comp479.ranking;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,56 +20,37 @@ public class RankEngine {
         return totalSentimentValue;
     }
 
-    public Map<Integer, DocumentScore> rankDocuments(String rawQuery, Map<String, Integer> sentiment) throws IOException {
+    public Map<Integer, HashMap<Integer, Double>> rankDocuments(List<String> queryList, Map<String, Integer> sentiment) throws IOException {
 
-        // since we use the "bag of words model" we need to simulate
-        // OR functionality in the search engine:
-        String newQuery = rawQuery.replaceAll(" ", " OR ");
+        HashMap<String, List<Integer>> dictionaryMap = createDictionary(queryList);
+        CosineScore cs = new CosineScore();
+        Map<Integer, Double> scoresMap = cs.calculateCosineScore(dictionaryMap, sentiment);
 
-        List<Integer> docIdList = searchQuery(newQuery);
-        List<String> queryList = splitRawQuery(rawQuery);
+        double totalSentiment = cs.getAverageSentimentValue(queryList, sentiment);
+        System.out.println("Total Sentiment Value: " + totalSentiment);
 
-        Map<Integer, DocumentScore> scores = getDocScores(queryList, docIdList, sentiment);
-        return scores;
+        SortScores sco = new SortScores();
+        Map<Integer, HashMap<Integer, Double>> sortedMap = sco.printMap(scoresMap, totalSentiment);
+
+        return sortedMap;
     }
 
-    private List<Integer> searchQuery(String query) {
+    private HashMap<String, List<Integer>> createDictionary(List<String> queryList) {
+        HashMap<String, List<Integer>> dictionary = new HashMap();
 
-        SearchEngine se = new SearchEngine();
-        List<List<String>> result = se.search(query, true);
-
-        List<Integer> resultList = new ArrayList();
-
-        for (List<String> lst : result) {
-            for (String item : lst) {
-                int docId = Integer.valueOf(item);
-                resultList.add(docId);
-            }
+        for (String term : queryList) {
+            List<Integer> postingsList = search(term);
+            dictionary.put(term, postingsList);
         }
 
-        return resultList;
+        return dictionary;
     }
 
-    private List<String> splitRawQuery(String rawQuery) {
-        String[] tmp = rawQuery.split(" ");
-        List<String> result = new ArrayList();
-
-        for (String item : tmp) {
-            result.add(item.trim());
-        }
+    public List<Integer> search(String query) {
+        SearchEngine sen = new SearchEngine();
+        List<Integer> result = sen.getPostings(query);
 
         return result;
-    }
-
-    private Map<Integer, DocumentScore> getDocScores(List<String> queryList, List<Integer> docIdList, Map<String, Integer> sentimentMap) throws IOException {
-        String indexPath = "index.txt";
-        String datasetPath = "dataset.dat";
-
-        Frequency fr = new Frequency(indexPath, datasetPath);
-        Map<Integer, DocumentScore> scores = fr.getScores(queryList, docIdList, sentimentMap);
-        this.totalSentimentValue = fr.getTotalSentimentValue();
-
-        return scores;
     }
 
 }
