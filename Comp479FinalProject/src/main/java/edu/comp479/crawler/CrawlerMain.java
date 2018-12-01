@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.net.URL;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class CrawlerMain {
     private static Logger LOGGER = Logger.getLogger(CrawlerMain.class.getName());
@@ -24,17 +30,12 @@ public class CrawlerMain {
         String firstUrl = "https://www.concordia.ca/about.html";
 
         String source = crawler.getUrlContents(firstUrl);
-
-        // List<String> titles = new ArrayList<>();
-        // List<String> bodies = new ArrayList<>();
         List<String> firstPageLinks = new ArrayList<>();
         List<String> visitedLinks = new ArrayList<>();
 
         visitedLinks.add(firstUrl);
 
         HashMap<Integer, String> links = te.extractLinksFromHtml(source);
-        // titles.add(te.getTitle(source));
-        // bodies.addAll(te.getAbsoluteText(source));
 
         String title = te.getTitle(source);
         String body = te.getHtmlBody(source);
@@ -82,8 +83,7 @@ public class CrawlerMain {
                 visitedLinks.add(firstPageLinks.get(counter));
                 addedLinks = te.extractLinksFromHtml(source1);
 
-                // titles.add(te.getTitle(source1));
-                // bodies.addAll(te.getAbsoluteText(source1));
+
                 String title1 = te.getTitle(source1);
                 String body1 = te.getHtmlBody(source1);
 
@@ -98,31 +98,81 @@ public class CrawlerMain {
             }else if((!visitedLinks.contains(firstPageLinks.get(counter)) && (!socialMedia.contains(firstPageLinks.get(counter))))){
 
                 String urlNew = firstPageLinks.get(counter);
-                String source1 = crawler.getUrlContents(urlNew);
 
-                visitedLinks.add(firstPageLinks.get(counter));
-                addedLinks = te.extractLinksFromHtml(source1);
+                try {
+
+                    //If true than the url allows us to crawl the information on the site
+                    if(canCrawl(urlNew)) {
 
 
-                String title1 = te.getTitleUrl(urlNew);
-                String body1 = te.getBodyUrl(urlNew);
+                        String source1 = crawler.getUrlContents(urlNew);
 
-                //titles.addAll(tokenizer.getTokens(title1));
-                //bodies.addAll(tokenizer.getTokens(body1));
+                        visitedLinks.add(firstPageLinks.get(counter));
+                        addedLinks = te.extractLinksFromHtml(source1);
 
-                Document doc = new Document(title1, body1, urlNew);
-                documents.add(doc);
 
-                for (Map.Entry<Integer, String> entry : addedLinks.entrySet()) {
+                        String title1 = te.getTitleUrl(urlNew);
+                        String body1 = te.getBodyUrl(urlNew);
 
-                    firstPageLinks.add(entry.getValue());
+                        Document doc = new Document(title1, body1, urlNew);
+                        documents.add(doc);
 
+                        for (Map.Entry<Integer, String> entry : addedLinks.entrySet()) {
+
+                            firstPageLinks.add(entry.getValue());
+
+                        }
+                    }
+                }catch (Exception e){
+                    System.out.println("Cannot Connect to Website");
                 }
             }
 
             counter++;
 
         } while (counter < interation);
+    }
+
+
+    /**
+     * Static method that will determine if a site other than concordia.ca has a robot.txt file and see if we
+     * are allowed to crawl the site for its information
+     *
+     * @param urlPath url to connect to
+     * @return boolean to see if the website has a robot.txt
+     */
+    public static boolean canCrawl(String urlPath) throws IOException {
+
+        //Pattern to match the beginning of a website
+        Pattern p = Pattern.compile("^(http(s?)://([^/]+))");
+        Matcher m = p.matcher(urlPath);
+        boolean canCrawl = true;
+
+        //if there is a match then add the robots to the end of the site
+        if (m.find()) {
+            try (BufferedReader in = new BufferedReader(
+                    new InputStreamReader(new URL(m.group(1) + "/robots.txt").openStream()))) {
+
+                String line = null;
+                while ((line = in.readLine()) != null) {
+
+                    //Regex to see if the robots.txt has a disallow section
+                    Pattern pattern = Pattern.compile("User-agent: (.*)|Disallow: (.*)");
+                    Matcher matcher = pattern.matcher(line);
+
+                    if (matcher.find()) {
+                        canCrawl = false;
+
+                    }
+                }
+                in.close();
+
+            } catch (Exception e) {
+                System.out.println("No Robots.txt File!");
+            }
+        }
+
+        return canCrawl;
     }
 
     public List<Long> dumpToDisk(DocDiskManager docDiskManager) {
