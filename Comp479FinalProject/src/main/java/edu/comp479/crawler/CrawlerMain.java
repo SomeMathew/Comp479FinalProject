@@ -61,6 +61,7 @@ public class CrawlerMain {
         socialMedia.add("flickr");
         socialMedia.add("pinterest");
         socialMedia.add("youtube");
+        socialMedia.add("https://stores.concordia.ca/");
 
         /**
          *
