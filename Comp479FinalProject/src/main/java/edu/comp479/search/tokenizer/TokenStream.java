@@ -73,7 +73,9 @@ public class TokenStream implements ITokenStream {
         tokenizer.analyzeAppendToList(nextDoc.getTitle(), tokens);
         tokenizer.analyzeAppendToList(nextDoc.getBody(), tokens);
         
-
+        if (tokens.isEmpty()) {
+            return fetchNewTokens();
+        }
         this.tokens = tokens;
         this.tokenIter = tokens.iterator();
         return true;

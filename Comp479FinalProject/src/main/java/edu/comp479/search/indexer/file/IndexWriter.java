@@ -189,7 +189,7 @@ public class IndexWriter implements Closeable {
         normOutput.writeLong(maxDocId);
 
         PeekingIterator<NormFileEntry> iter = Iterators.peekingIterator(normEntries.iterator());
-        for (long i = 0; i < maxDocId; i++) {
+        for (long i = 0; i <= maxDocId; i++) {
             if (iter.hasNext()) {
                 if (iter.peek().getDocId() == i) {
                     writeNormEntry(iter.next());
