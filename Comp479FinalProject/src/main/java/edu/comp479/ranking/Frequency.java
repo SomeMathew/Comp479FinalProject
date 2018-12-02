@@ -1,60 +1,48 @@
 package edu.comp479.ranking;
 
-import java.io.IOException;
+import edu.comp479.search.index.IInvertedIndex;
+import edu.comp479.search.index.structure.Posting;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
- * This class contains help functions regarding term and document frequency calculations.
+ * This class contains help functions regarding term and document frequency
+ * calculations.
  *
  * @author Mohsen Parisay <mohsenparisay@gmail.com>
- * @version <1.0> - <18.nov.2018>
+ * @version <1.1> - <1.dec.2018>
  */
 public class Frequency {
 
-    Map<String, List<String>> myIndex = new TreeMap();
-    Map<Integer, List<String>> dataset = new TreeMap();
-
     private double totalSentimentValue;
+    private IInvertedIndex index;
 
     public double getTotalSentimentValue() {
         return totalSentimentValue;
     }
 
-    public Frequency(String indexPath, String datasetPath) throws IOException {
-        FileOperations fo = new FileOperations();
-        myIndex = fo.readRawIndexFile(indexPath);
-        dataset = fo.readDataMap(datasetPath);
+    public Frequency(IInvertedIndex index) {
+        this.index = index;
     }
 
     // 'tf-idf' value
     public double getTermFreqInvDocFrequency(String term, int docId) {
         double tf = getTermFrequencyInDocument(term, docId);
-        int collectionSize = dataset.size();
+        long collectionSize = this.index.getDocumentCount();
         double idf = getInverseDocFrequency(term, collectionSize);
         double tf_idf = tf * idf;
 
         return tf_idf;
     }
 
-    public int getDocumentFrequency(String term) {
-        int df = 0;
-
-        if (myIndex.containsKey(term.toLowerCase())) {
-            df += myIndex.get(term.toLowerCase()).size();
-        }
-        if (myIndex.containsKey(term.toUpperCase())) {
-            df += myIndex.get(term.toUpperCase()).size();
-        }
-
-        return df;
+    public long getDocumentFrequency(String term) {
+        return this.index.getPostings(term).getDocumentFrequency();
     }
 
     // 'idf' value
-    private double getInverseDocFrequency(String term, int collectionSize) {
-        int df = getDocumentFrequency(term);
+    private double getInverseDocFrequency(String term, long collectionSize) {
+        long df = getDocumentFrequency(term);
         double div = 0;
         double idf = 0;
 
@@ -67,21 +55,18 @@ public class Frequency {
     }
 
     public int getTermFrequencyInDocument(String term, int docId) {
-        List<String> docContents = getRecord(docId);
-        int freq = 0;
-
-        for (String item : docContents) {
-            if (item.toLowerCase().contains(term.toLowerCase())) {
-                freq++;
+        int tf = 0;
+        for (Posting p : index.getPostings(term).getPostingsList()) {
+            if (p.getDocId() == docId) {
+                tf = p.getTermFreq();
+                break;
             }
         }
-
-        return freq;
+        return tf;
     }
 
-    public int getDocumentLength(int docId) {
-        List<String> docContents = getRecord(docId);
-        return docContents.size();
+    public float getDocumentLength(int docId) {
+        return this.index.getDocumentLengthNorm(docId);
     }
 
     public double getCosineNormalization(List<Double> wightsList) {
@@ -91,10 +76,6 @@ public class Frequency {
         }
         double normalizedValue = (double) 1 / Math.sqrt(sumSquar);
         return normalizedValue;
-    }
-
-    private List<String> getRecord(int docId) {
-        return dataset.get(docId);
     }
 
     public HashMap<Integer, DocumentScore> getScores(List<String> queryList, List<Integer> docIdList, Map<String, Integer> sentiment) {

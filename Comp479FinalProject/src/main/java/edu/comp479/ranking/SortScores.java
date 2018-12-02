@@ -17,7 +17,7 @@ public class SortScores {
     final int ROUND_PLACES = 4;
     public Map<Integer, HashMap<Integer, Double>> printMap(Map<Integer, Double> input, double order) {
         Map<Integer, Double> baseMap = MapUtil.sortByValue(input);
-        if (order > 0) {
+        if (order >= 0) {
             return sortPositive(baseMap);
         }
         return sortNegative(baseMap);

@@ -1,5 +1,8 @@
 package edu.comp479.ranking;
 
+import edu.comp479.search.index.IInvertedIndex;
+import edu.comp479.search.index.structure.IIndexEntry;
+import edu.comp479.search.index.structure.Posting;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +18,11 @@ import java.util.Map;
 public class RankEngine {
 
     private double totalSentimentValue;
+    private IInvertedIndex index;
+
+    public RankEngine(IInvertedIndex index) {
+        this.index = index;
+    }
 
     public double getTotalSentimentValue() {
         return totalSentimentValue;
@@ -23,7 +31,8 @@ public class RankEngine {
     public Map<Integer, HashMap<Integer, Double>> rankDocuments(List<String> queryList, Map<String, Integer> sentiment) throws IOException {
 
         HashMap<String, List<Integer>> dictionaryMap = createDictionary(queryList);
-        CosineScore cs = new CosineScore();
+
+        CosineScore cs = new CosineScore(this.index);
         Map<Integer, Double> scoresMap = cs.calculateCosineScore(dictionaryMap, sentiment);
 
         double totalSentiment = cs.getAverageSentimentValue(queryList, sentiment);
@@ -47,10 +56,16 @@ public class RankEngine {
     }
 
     public List<Integer> search(String query) {
-        SearchEngine sen = new SearchEngine();
-        List<Integer> result = sen.getPostings(query);
+        List<Integer> docIdList = new ArrayList();
+        IIndexEntry pos = index.getPostings(query);
 
-        return result;
+        List<Posting> lp = pos.getPostingsList();
+        for (Posting posting : lp) {
+            int id = (int) posting.getDocId();
+            docIdList.add(id);
+        }
+
+        return docIdList;
     }
 
 }

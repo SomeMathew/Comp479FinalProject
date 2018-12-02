@@ -1,5 +1,6 @@
 package edu.comp479.ranking;
 
+import edu.comp479.search.index.IInvertedIndex;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -15,17 +16,14 @@ public class CosineScore {
 
     Frequency fr = null;
 
-    public CosineScore() throws IOException {
-        String indexPath = "index.txt";
-        String datasetPath = "dataset.dat";
-
-        fr = new Frequency(indexPath, datasetPath);
+    public CosineScore(IInvertedIndex index) throws IOException {        
+        fr = new Frequency(index);
     }
 
     public Map<Integer, Double> calculateCosineScore(HashMap<String, List<Integer>> dictionary, Map<String, Integer> sentimentMap) throws IOException {
 
         Map<Integer, Double> scores = new TreeMap();
-        Map<Integer, Integer> length = new TreeMap();
+        Map<Integer, Float> length = new TreeMap();
         HashMap<String, Double> queryMap = createQueryMap(dictionary);
 
         for (Map.Entry<String, Double> entry : queryMap.entrySet()) {
@@ -44,15 +42,15 @@ public class CosineScore {
                 double value = calcWeightSentimentValue(weight, sentimentValue);
                 scores.put(docId, value);
 
-                int docLen = getDocumentLength(docId);
+                float docLen = getDocumentLength(docId);
                 length.put(docId, docLen);
             }
 
         }// end of for each query term                                     
 
-        for (Map.Entry<Integer, Integer> entry : length.entrySet()) {
+        for (Map.Entry<Integer, Float> entry : length.entrySet()) {
             Integer docId = entry.getKey();
-            Integer len = entry.getValue();
+            Float len = entry.getValue();
 
             double finalScore = (double) scores.get(docId) / len;
             scores.put(docId, finalScore);
@@ -91,10 +89,9 @@ public class CosineScore {
         double tf = fr.getTermFreqInvDocFrequency(term, docId);
         return tf;
     }
-
-    private int getDocumentLength(int docId) {
-        int len = fr.getDocumentLength(docId);
-        return len;
+    
+    private float getDocumentLength(int docId) {
+        return fr.getDocumentLength(docId);        
     }
 
     public double calcWeightSentimentValue(double weight, int sentiment) {
