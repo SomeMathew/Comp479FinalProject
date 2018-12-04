@@ -125,6 +125,7 @@ public class CrawlerMain {
                         }
                     }
                 }catch (Exception e){
+                    System.out.println(urlNew);
                     System.out.println("Cannot Connect to Website");
                 }
             }
@@ -169,6 +170,7 @@ public class CrawlerMain {
                 in.close();
 
             } catch (Exception e) {
+                System.out.println(urlPath);
                 System.out.println("No Robots.txt File!");
             }
         }

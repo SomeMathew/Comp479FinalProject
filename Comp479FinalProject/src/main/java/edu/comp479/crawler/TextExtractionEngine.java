@@ -34,6 +34,7 @@ public class TextExtractionEngine {
             title = doc.title();
 
         }catch (IOException e){
+            System.out.println(url);
             System.out.println("Connection Timeout");
         }
 
@@ -54,6 +55,7 @@ public class TextExtractionEngine {
             body = doc.text();
 
         }catch (IOException e){
+            System.out.println(url);
             System.out.println("Connection Timeout");
         }
 
