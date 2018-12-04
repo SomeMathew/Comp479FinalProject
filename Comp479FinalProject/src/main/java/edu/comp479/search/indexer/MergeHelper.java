@@ -70,7 +70,7 @@ public class MergeHelper {
 	}
 
 	private boolean nextEntryHasTerm(String term) {
-		return !pq.isEmpty() && pq.peek().x.getTerm() == term;
+		return !pq.isEmpty() && term.equals(pq.peek().x.getTerm());
 	}
 
 	private IndexEntry getNextEntryAndAdvance() throws IOException {

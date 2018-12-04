@@ -120,7 +120,6 @@ public class SPIMIInverter {
     public String invert() {
         String indexBlockName = String.format("%s_%s.blk", indexName, blockCount);
         IndexBlockBuilder builder = blockBuilderFactory.createIndexBlockBuilder();
-
         while (validateMemoryUsage() && tokenStream.hasNext()) {
             IToken nextToken = tokenStream.next();
             builder.addPosting(nextToken.getTerm(), nextToken.getDocId());
