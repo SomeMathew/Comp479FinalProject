@@ -18,6 +18,9 @@ import static com.google.common.base.Preconditions.*;
 public class SPIMIInverter {
     private static final Logger LOGGER = Logger.getLogger(SPIMIInverter.class.getName());
 
+    private static final int MAX_MEM_EXCEEDED_COUNT = 3;
+    private static final int MAX_BLOCK_SIZE = 1000000;
+            
     public static final String DEFAULT_DIRECTORY = ".";
     public static final int MIN_MEMORY_USE = 32;
     public static final int DEFAULT_MAX_MEMORY_USE = 64;
@@ -32,6 +35,9 @@ public class SPIMIInverter {
     private final Runtime runtime;
 
     private int blockCount = 0;
+    private int memExceededCount = 0;
+    private boolean indexingIsDone = false;
+    private boolean useBlockSize = false;
 
     /**
      * @throws IOException If the sentiment dictionary cannot be loaded.
@@ -120,7 +126,15 @@ public class SPIMIInverter {
     public String invert() {
         String indexBlockName = String.format("%s_%s.blk", indexName, blockCount);
         IndexBlockBuilder builder = blockBuilderFactory.createIndexBlockBuilder();
-        while (validateMemoryUsage() && tokenStream.hasNext()) {
+        while (true) {
+            if (!tokenStream.hasNext()) {
+                indexingIsDone = true;
+                break;
+            }
+            if (!validateMemoryUsage(builder.getSize())) {
+                System.gc();
+                break;
+            }
             IToken nextToken = tokenStream.next();
             builder.addPosting(nextToken.getTerm(), nextToken.getDocId());
         }
@@ -128,6 +142,7 @@ public class SPIMIInverter {
         if (builder.getSize() > 0) {
             try (IndexWriter indexWriter = indexWriterFactory.createIndexWriter(indexBlockName, directory)) {
                 builder.writeToDisk(indexWriter);
+                builder = null;
                 blockCount++;
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Unable to write the index Block.", e);
@@ -140,13 +155,35 @@ public class SPIMIInverter {
         }
     }
 
+    public boolean indexingIsDone() {
+        return indexingIsDone;
+    }
+
     /**
      * Validates the current memory usage of the program.
      * 
      * @return {@code true} if the limit is hit, {@code false} otherwise
      */
-    private boolean validateMemoryUsage() {
+    private boolean validateMemoryUsage(int blockSize) {
+        if (memExceededCount > MAX_MEM_EXCEEDED_COUNT) {
+            LOGGER.log(Level.WARNING, "JVM is being a pain, not clearing the gc, revert to block size.");
+            useBlockSize = true;
+            memExceededCount = 0;
+            return true;
+        } else if (useBlockSize == true) {
+            // Override the check for mem usage
+            boolean validateCheck = blockSize <= MAX_BLOCK_SIZE;
+            if (!validateCheck) {
+                LOGGER.info("In mem override mode: blockSize hit -> " + blockSize);
+            }
+            return validateCheck;
+        }
         long totalMemoryUsage = runtime.totalMemory();
+        boolean usageExceeded = totalMemoryUsage < this.maxMemoryUsageByte;
+        if (!usageExceeded) {
+            LOGGER.log(Level.INFO, "Memory exceeded, starting next block. Limit count: " + memExceededCount);
+            memExceededCount++;
+        }
         return totalMemoryUsage < this.maxMemoryUsageByte;
     }
 }

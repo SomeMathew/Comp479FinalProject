@@ -78,8 +78,11 @@ public class Indexer implements IIndexer {
 
             if (lastBlockFileName != null) {
                 blockNames.add(lastBlockFileName);
-            } else {
+            } else if (spimiIndexer.indexingIsDone()){
                 break;
+            } else {
+                // We're having memory problem try another garbage collection
+                System.gc();
             }
         }
         return blockNames;

@@ -125,8 +125,8 @@ public class IndexBlockMerger {
 
         while (!currentBlockNames.isEmpty() && currentBlockNames.size() > 1) {
             currentBlockNames = mergeIteration(currentBlockNames);
+            currentIteration++;
         }
-        currentIteration++;
         assert currentBlockNames.size() == 1 : "Merge didn't end with a single block.";
 
         return currentBlockNames.get(0);
