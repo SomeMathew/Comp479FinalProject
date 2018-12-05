@@ -14,7 +14,6 @@ import edu.comp479.crawler.Document;
 import edu.comp479.ranking.RankEngine;
 import edu.comp479.search.index.IInvertedIndex;
 import edu.comp479.search.index.IndexFactory;
-import edu.comp479.search.index.structure.IIndexEntry;
 import edu.comp479.search.indexer.file.IndexReaderMemoryMapped;
 import edu.comp479.search.tokenizer.TokenizerNormalize;
 import edu.comp479.search.util.SentimentDictionaryBuilder;
@@ -165,7 +164,7 @@ public class AppSearch implements IApp {
                     LOGGER.info("Unable to read URL from cache.");
                     url = "no-url-err";
                 }
-                
+
                 out.printf("Rank (%d) : docId [%d] : score [%f] : url [%s])\n", rankIndex + 1, docId, score, url);
                 resultDisplayed++;
             }
