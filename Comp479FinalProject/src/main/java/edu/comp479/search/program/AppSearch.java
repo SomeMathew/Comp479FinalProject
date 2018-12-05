@@ -17,6 +17,7 @@ import edu.comp479.search.index.IndexFactory;
 import edu.comp479.search.index.structure.IIndexEntry;
 import edu.comp479.search.indexer.file.IndexReaderMemoryMapped;
 import edu.comp479.search.tokenizer.TokenizerNormalize;
+import edu.comp479.search.util.SentimentDictionaryBuilder;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import static java.lang.System.out;
@@ -28,6 +29,7 @@ public class AppSearch implements IApp {
     private IInvertedIndex index;
     private DocDiskManager cache;
     private TokenizerNormalize tokenizer;
+    private Map<String, Integer> sentimentDict;
 
     private Integer resultLimit;
     private boolean limitResult;
@@ -59,6 +61,7 @@ public class AppSearch implements IApp {
             index = indexFactory.getIndex(indexReader);
             cache = new DocDiskManager(Paths.get(cacheDir));
             tokenizer = new TokenizerNormalize();
+            sentimentDict = new SentimentDictionaryBuilder().loadSentimentDictionary();
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "IO error when accessing the index", e);
             try {
@@ -138,9 +141,7 @@ public class AppSearch implements IApp {
         LOGGER.info("Retrieving for tokens: " + queryTokens);
         HashMap<String, Integer> sentimentMap = new HashMap<>();
         for (String term : queryTokens) {
-            IIndexEntry indexEntry = index.getPostings(term);
-            int sentimentValue = indexEntry.getSentimentValue();
-            sentimentMap.put(term, sentimentValue);
+            sentimentMap.put(term, sentimentDict.getOrDefault(term, 0));
         }
 
         RankEngine ren = new RankEngine(index);
