@@ -94,8 +94,30 @@ public final class Program {
                 .help("Selects the directory of the inverted index files")
                 .action(Arguments.store())
                 .metavar("DIR")
-                .dest("directory")
+                .dest("indexDir")
+                .setDefault("./index/");
+        
+        searchParser.addArgument("--doc-cache-dir", "-c")
+                .help("Selects the directory of the document cache.")
+                .action(Arguments.store())
+                .metavar("DIR_CACHE")
+                .dest("cacheDir")
+                .setDefault("./cache/");
+        
+        searchParser.addArgument("--limit-result", "-l")
+                .help("Limit the number of results displayed per query.")
+                .action(Arguments.store())
+                .metavar("LIMIT")
+                .type(Integer.class)
+                .dest("resultLimit");
+        
+        searchParser.addArgument("indexName")
+                .help("Name of the index found in the directory to open.")
+                .action(Arguments.store())
+                .metavar("INDEX_NAME")
+                .dest("indexName")
                 .setDefault(".");
+        
        searchParser.setDefault("appObj", new AppSearch()); 
         
        

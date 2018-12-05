@@ -9,6 +9,8 @@ import java.util.logging.Logger;
 
 import edu.comp479.crawler.CrawlerMain;
 import edu.comp479.crawler.DocDiskManager;
+import edu.comp479.crawler.Document;
+import edu.comp479.crawler.DocumentLight;
 import edu.comp479.search.indexer.Indexer;
 import edu.comp479.search.tokenizer.TokenStream;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -58,6 +60,22 @@ public class AppIndex implements IApp {
         }
         List<Long> docIds = crawler.dumpToDisk(docDiskManager);
 
+        // Null the crawler to help GC
+        LOGGER.info("Trying to clear memory..");
+        crawler.clearDocuments();
+        crawler = null;
+        System.gc();
+
+        LOGGER.info("Preparing cache for indexing...");
+        // For partial restart
+//        List<String> files = null;
+//        try {
+//            files = Files.readAllLines(Paths.get("./indexLarge/docIds.txt"));
+//        } catch (IOException e1) {
+//            e1.printStackTrace();
+//            return;
+//        }
+//        List<Long> docIds = files.stream().map(Long::parseLong).sorted().collect(Collectors.toList());
         TokenStream tokenStream = new TokenStream(docDiskManager, docIds);
 
         Indexer indexer = new Indexer(indexName, tokenStream, constructPath, indexPath, maxMemoryUsageMb,
@@ -73,6 +91,18 @@ public class AppIndex implements IApp {
 
         LOGGER.info(String.format("Index completed succesfully! IndexName: %s, Index Directory: %s", indexName,
                 indexPath.toString()));
+
+        LOGGER.info("Creating light cache...");
+        createLightCacheForRetrieval(docDiskManager, docIds);
+        LOGGER.info("Light URL cache created.");
+    }
+
+    private void createLightCacheForRetrieval(DocDiskManager docDiskManager, List<Long> docIds) {
+        for (long docId : docIds) {
+            Document docOriginal = docDiskManager.readFromDisk(docId);
+            DocumentLight light = new DocumentLight(docOriginal);
+            docDiskManager.writeToDisk(light);
+        }
     }
 
 }

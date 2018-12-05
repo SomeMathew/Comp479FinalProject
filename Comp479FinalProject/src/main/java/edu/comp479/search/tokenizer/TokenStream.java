@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.logging.Logger;
 
 import edu.comp479.crawler.DocDiskManager;
 import edu.comp479.crawler.Document;
 
 public class TokenStream implements ITokenStream {
+    private static final Logger LOGGER = Logger.getLogger(TokenStream.class.getName());
+    
     private DocDiskManager docDiskManager;
     private TokenizerNormalize tokenizer;
 
@@ -64,6 +67,7 @@ public class TokenStream implements ITokenStream {
      */
     private boolean fetchNewTokens() {
         if (!docIdsIter.hasNext()) {
+            LOGGER.info("No more documents! Current DocId: " + currentDocId);
             return false;
         }
         this.currentDocId = docIdsIter.next();
@@ -74,6 +78,7 @@ public class TokenStream implements ITokenStream {
         tokenizer.analyzeAppendToList(nextDoc.getBody(), tokens);
         
         if (tokens.isEmpty()) {
+            LOGGER.info("Empty Document Found - Skipping...  DocId: " + currentDocId);
             return fetchNewTokens();
         }
         this.tokens = tokens;
