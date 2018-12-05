@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 import edu.comp479.crawler.DocDiskManager;
 import edu.comp479.crawler.Document;
+import edu.comp479.crawler.DocumentLight;
 import edu.comp479.ranking.RankEngine;
 import edu.comp479.search.index.IInvertedIndex;
 import edu.comp479.search.index.IndexFactory;
@@ -111,7 +112,8 @@ public class AppSearch implements IApp {
      */
     public void retrieve(Scanner scan) {
         while (true) {
-            out.println("Enter your a document Id to the URL. (q to exit)");
+            out.println(
+                    "NOTE: This mode will not work with a light document cache.\n Enter your a document Id to the URL. (q to exit)");
             String userInput = scan.nextLine();
             if (userInput.equals("q")) {
                 break;
@@ -124,6 +126,10 @@ public class AppSearch implements IApp {
                 continue;
             }
             Document doc = cache.readFromDisk(docId);
+            if (doc == null) {
+                DocumentLight lightDoc = cache.readLightFromDisk(docId);
+                out.println("URL: " + lightDoc.getUrl());
+            }
             out.println("URL: " + doc.getUrl());
         }
     }
