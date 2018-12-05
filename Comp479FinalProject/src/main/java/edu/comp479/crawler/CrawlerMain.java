@@ -19,6 +19,11 @@ public class CrawlerMain {
     public List<Document> getDocuments() {
         return documents;
     }
+    
+    // Help with garbage collection when over
+    public void clearDocuments() {
+        documents = null;
+    }
 
     public void execute(int interation) throws IOException {
 

@@ -18,17 +18,22 @@ public class DocDiskManager {
 
     private final Kryo kryo;
     private final Path directory;
+    private final Path lightDirectory;
 
     /**
      * Creates a new {@link DocDiskManager} to dump and retrieve documents from a
      * disk cache.
-     * @throws IOException 
+     * 
+     * @throws IOException
      */
     public DocDiskManager(Path directory) throws IOException {
         kryo = new Kryo();
         kryo.register(Document.class);
+        kryo.register(DocumentLight.class);
         Files.createDirectories(directory);
         this.directory = directory;
+        this.lightDirectory = directory.resolve("light");
+        Files.createDirectories(lightDirectory);
     }
 
     /**
@@ -65,6 +70,48 @@ public class DocDiskManager {
         Document retrievedDoc = null;
         try (Input input = new Input(Files.newInputStream(pathToFile))) {
             retrievedDoc = kryo.readObject(input, Document.class);
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Unable to read document from disk", e);
+            return null;
+        }
+
+        return retrievedDoc;
+    }
+
+    /**
+     * Write a light document descriptor to disk.
+     * 
+     * @param doc {@link DocumentLight} to write
+     * @return Name of the file on disk or {@code null} on error.
+     * @throws IOException
+     */
+    public String writeToDisk(DocumentLight doc) {
+        String fileName = getFileName(doc.getDocumentId());
+        Path pathToFile = lightDirectory.resolve(fileName);
+        try (Output output = new Output(Files.newOutputStream(pathToFile))) {
+            kryo.writeObject(output, doc);
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Unable to dump document to disk", e);
+            return null;
+        }
+    
+        return fileName;
+    }
+
+    /**
+     * Fetch a document from disk.
+     * 
+     * @param docID Document Id of the document to retrieve.
+     * @return The {@link DocumentLight} object or {@code null} on io error
+     * @throws IOException
+     */
+    public DocumentLight readLightFromDisk(long docId) {
+        String fileName = getFileName(docId);
+        Path pathToFile = lightDirectory.resolve(fileName);
+
+        DocumentLight retrievedDoc = null;
+        try (Input input = new Input(Files.newInputStream(pathToFile))) {
+            retrievedDoc = kryo.readObject(input, DocumentLight.class);
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Unable to read document from disk", e);
             return null;
